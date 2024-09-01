@@ -73,7 +73,7 @@ namespace BlazorAuthTemplate.Models
                 Project = ticket.Project?.ToDTO(),
                 SubmitterUser = ticket.SubmitterUser?.ToDTO(),
                 DeveloperUser = ticket.DeveloperUser?.ToDTO(),
-                TicketComments = [.. ticket.TicketComments?.Select(c => c.ToDTO())]
+                TicketComments = [.. ticket.TicketComments?.Select(c => c.ToDTO())],
                 TicketAttachments = [.. ticket.TicketAttachments?.Select(a => a.ToDTO())]
             };
         }

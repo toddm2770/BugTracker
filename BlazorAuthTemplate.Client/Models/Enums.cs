@@ -56,24 +56,23 @@ namespace BlazorAuthTemplate.Models
             Enhancement,
             [Display(Name = "General Task")] GeneralTask
         }
-
-        public static class EnumExtensions
+    }
+    public static class EnumExtensions
+    {
+        public static string GetDisplayName(this System.Enum enumValue)
         {
-            public static string GetDisplayName(this System.Enum enumValue)
+            string? displayName = enumValue.GetType()
+                .GetMember(enumValue.ToString())
+                .FirstOrDefault()?
+                .GetCustomAttribute<DisplayAttribute>()?
+                .GetName();
+
+            if (string.IsNullOrEmpty(displayName))
             {
-                string? displayName = enumValue.GetType()
-                    .GetMember(enumValue.ToString())
-                    .FirstOrDefault()?
-                    .GetCustomAttribute<DisplayAttribute>()?
-                    .GetName();
-
-                if (string.IsNullOrEmpty(displayName))
-                {
-                    displayName = enumValue.ToString();
-                }
-
-                return displayName;
+                displayName = enumValue.ToString();
             }
+
+            return displayName;
         }
     }
 }
