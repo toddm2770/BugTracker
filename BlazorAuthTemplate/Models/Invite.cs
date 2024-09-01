@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BlazorAuthTemplate.Client.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlazorAuthTemplate.Models
 {
@@ -35,20 +36,38 @@ namespace BlazorAuthTemplate.Models
 
         public bool IsValid { get; set; }
 
-        public int CompanyId { get; set; }
-
         public virtual Company? Company { get; set; }
 
         public int ProjectId { get; set; }
 
         public virtual Project? Project { get; set; }
 
-        public string? InvitorId { get; set; }
-
         public virtual ApplicationUser? Invitor { get; set; }
 
-        public string? InviteeId { get; set; }
-
         public virtual ApplicationUser? Invitee { get; set; }
+    }
+
+    public static class InviteExtension
+    {
+        public static InviteDTO ToDTO(this Invite invite)
+        {
+            return new InviteDTO()
+            {
+                Id = invite.Id,
+                InviteDate = invite.InviteDate,
+                JoinDate = invite.JoinDate,
+                InviteeEmail = invite.InviteeEmail,
+                InviteeFirstName = invite.InviteeFirstName,
+                InviteeLastName = invite.InviteeLastName,
+                Message = invite.Message,
+                IsValid = invite.IsValid,
+                ProjectId = invite.ProjectId,
+                InviteProject = invite.Project?.ToDTO(),
+                InviteeId = invite.Invitee?.Id,
+                Invitee = invite.Invitee?.ToDTO(),
+                InvitorId = invite.Invitor?.Id,
+                Invitor = invite.Invitor?.ToDTO()
+            };
+        }
     }
 }

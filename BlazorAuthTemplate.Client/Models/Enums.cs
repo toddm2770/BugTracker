@@ -59,7 +59,7 @@ namespace BlazorAuthTemplate.Models
 
         public static class EnumExtensions
         {
-            public static string GetDisplayName(this Enum enumValue)
+            public static string GetDisplayName(this System.Enum enumValue)
             {
                 string? displayName = enumValue.GetType()
                     .GetMember(enumValue.ToString())

@@ -11,12 +11,12 @@ namespace BlazorAuthTemplate.Client.Models
 
         public string? Description { get; set; }
 
-        public string? ImageUrl { get; set; }
+        public string? CompanyImageUrl { get; set; }
 
-        public ICollection<ProjectDTO> Projects { get; set; } = new List<ProjectDTO>();
+        public ICollection<ProjectDTO> Projects { get; set; } = [];
 
-        public ICollection<UserDTO> Members { get; set; } = new List<UserDTO>();
+        public ICollection<UserDTO> Members { get; set; } = [];
 
-        public ICollection<InviteDTO> Invites { get; set; } = new List<InviteDTO>();
+        public ICollection<InviteDTO> Invites { get; set; } = [];
     }
 }

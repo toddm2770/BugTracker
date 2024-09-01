@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using BlazorAuthTemplate.Client.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace BlazorAuthTemplate.Models
 {
@@ -17,16 +19,30 @@ namespace BlazorAuthTemplate.Models
         public string FullName => $"{FirstName} {LastName}";
 
         public Guid ProfilePictureId { get; set; }
-        public virtual FileUpload ProfilePicture { get; set; }
 
-        public string? ProfilePictureURL { get; set; }
+        public virtual FileUpload? ProfilePicture { get; set; }
 
         [Required]
         public int CompanyId { get; set; }
 
-        public virtual Company Company { get; set; }
+        public virtual Company? Company { get; set; }
 
-        ICollection<Project> Projects { get; set; }
+        ICollection<Project>? Projects { get; set; }
 
+    }
+
+    public static class ApplicationUserExtension
+    {
+        public static UserDTO ToDTO(this ApplicationUser applicationUser)
+        {
+            return new UserDTO()
+            {
+                FirstName = applicationUser.FirstName,
+                LastName = applicationUser.LastName,
+                FullName = applicationUser.FullName,
+                ImageUrl = applicationUser.ProfilePicture?.Extension,
+                Email = applicationUser.Email
+            };
+        }
     }
 }

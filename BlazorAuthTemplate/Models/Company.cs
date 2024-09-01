@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BlazorAuthTemplate.Client.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlazorAuthTemplate.Models
 {
@@ -11,14 +12,33 @@ namespace BlazorAuthTemplate.Models
 
         public string? Description { get; set; }
 
-        public Guid ImageId { get; set; }
+        public FileUpload? CompanyImage { get; set; }
 
-        public virtual FileUpload Image { get; set; }
+        public virtual FileUpload? Image { get; set; }
 
-        public virtual ICollection<Project> Projects { get; set; }
+        public string? CompanyImageURL { get; set; }
 
-        public virtual ICollection<ApplicationUser> Members { get; set; } = new List<ApplicationUser>();
+        public virtual ICollection<Project> Projects { get; set; } = [];
 
-        public virtual ICollection<Invite> Invites { get; set; } = new List<Invite>();
+        public virtual ICollection<ApplicationUser> Members { get; set; } = [];
+
+        public virtual ICollection<Invite> Invites { get; set; } = [];
+    }
+
+    public static class CompanyExtension
+    {
+        public static CompanyDTO ToDTO(this Company company)
+        {
+            return new CompanyDTO()
+            {
+                Id = company.Id,
+                Name = company.Name,
+                Description = company.Description,
+                CompanyImageUrl = company.CompanyImage?.Extension,
+                Projects = [.. company.Projects.Select(p => p.ToDTO())],
+                Members = [.. company.Members.Select(p => p.ToDTO())],
+                Invites = [.. company.Invites.Select(p => p.ToDTO())]
+            };
+        }
     }
 }
