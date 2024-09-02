@@ -32,7 +32,8 @@ namespace BlazorAuthTemplate.Client
                 new Claim(ClaimTypes.Email, userInfo.Email),
                 new Claim(nameof(UserInfo.FirstName), userInfo.FirstName),
                 new Claim(nameof(UserInfo.LastName), userInfo.LastName),
-                new Claim(nameof(UserInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl)
+                new Claim(nameof(UserInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl),
+                new Claim(nameof(UserInfo.Roles), userInfo.Roles.ToString())
             ];
 
             authenticationStateTask = Task.FromResult(

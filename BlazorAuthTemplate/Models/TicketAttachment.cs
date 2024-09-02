@@ -1,4 +1,5 @@
 ﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 

@@ -1,4 +1,5 @@
 ﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Data;
 using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
 

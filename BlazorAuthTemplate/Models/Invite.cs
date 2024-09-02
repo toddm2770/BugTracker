@@ -1,4 +1,5 @@
 ﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Data;
 using System.ComponentModel.DataAnnotations;
 
 namespace BlazorAuthTemplate.Models
