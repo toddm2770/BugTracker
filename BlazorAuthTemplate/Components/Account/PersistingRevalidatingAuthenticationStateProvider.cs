@@ -91,6 +91,7 @@ namespace BlazorAuthTemplate.Components.Account
                 var profilePictureUrl = principal.FindFirst(nameof(UserInfo.ProfilePictureUrl))?.Value;
                 var firstName = principal.FindFirst(nameof(UserInfo.FirstName))?.Value;
                 var lastName = principal.FindFirst(nameof(UserInfo.LastName))?.Value;
+                string[]? roles = principal.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray();
 
                 if (userId != null && email != null && firstName != null && lastName != null && profilePictureUrl != null)
                 {
@@ -101,6 +102,7 @@ namespace BlazorAuthTemplate.Components.Account
                         FirstName = firstName,
                         LastName = lastName,
                         ProfilePictureUrl = profilePictureUrl,
+                        Roles = roles
                     });
                 }
             }
