@@ -11,5 +11,6 @@ namespace BlazorAuthTemplate.Client
         public required string ProfilePictureUrl { get; set; }
         public string FullName => $"{FirstName} {LastName}";
         public string[]? Roles { get; set; }
+        public required int CompanyId { get; set; }
     }
 }

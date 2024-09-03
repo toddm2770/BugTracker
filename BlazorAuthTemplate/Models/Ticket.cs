@@ -1,6 +1,7 @@
 ﻿using BlazorAuthTemplate.Client.Models;
 using BlazorAuthTemplate.Data;
 using System.ComponentModel.DataAnnotations;
+using static BlazorAuthTemplate.Models.Enums;
 
 namespace BlazorAuthTemplate.Models
 {
@@ -33,22 +34,25 @@ namespace BlazorAuthTemplate.Models
 
         public bool IsArchivedByProject { get; set; }
 
-        [Required]
-        public Enums.TicketPriority Priority { get; set; }
+        public TicketPriority Priority { get; set; }
+
+        public TicketType Type { get; set; }
+
+        public TicketStatus Status { get; set; }
 
         [Required]
-        public Enums.TicketType TicketType { get; set; }
+        public int ProjectId { get; set; }
 
-        [Required]
-        public Enums.TicketStatus TicketStatus { get; set; }
-
-        [Required]
         public virtual Project? Project { get; set; }
 
-        [Required]
-        public virtual ApplicationUser? SubmitterUser { get; set; }
+		[Required]
+		public string? SubmitterUserId { get; set; }
 
-        public virtual ApplicationUser? DeveloperUser { get; set; }
+		public virtual ApplicationUser? SubmitterUser { get; set; }
+
+		public string? DeveloperUserId { get; set; }
+
+		public virtual ApplicationUser? DeveloperUser { get; set; }
 
         public virtual ICollection<TicketComment>? TicketComments { get; set; } = [];
 
@@ -59,6 +63,12 @@ namespace BlazorAuthTemplate.Models
     {
         public static TicketDTO ToDTO(this Ticket ticket)
         {
+
+            if (ticket.Project != null) 
+            {
+                ticket.Project.Tickets = [];
+            }
+
             return new TicketDTO()
             {
                 Id = ticket.Id,
@@ -69,11 +79,14 @@ namespace BlazorAuthTemplate.Models
                 IsArchived = ticket.IsArchived,
                 IsArchivedByProject = ticket.IsArchivedByProject,
                 Priority = ticket.Priority,
-                TicketType = ticket.TicketType,
-                TicketStatus = ticket.TicketStatus,
+                Type = ticket.Type,
+                Status = ticket.Status,
                 Project = ticket.Project?.ToDTO(),
+                ProjectId = ticket.ProjectId,
                 SubmitterUser = ticket.SubmitterUser?.ToDTO(),
+                SubmitterUserId = ticket.SubmitterUserId,
                 DeveloperUser = ticket.DeveloperUser?.ToDTO(),
+                DeveloperUserId = ticket.DeveloperUserId,
                 TicketComments = [.. ticket.TicketComments?.Select(c => c.ToDTO())],
                 TicketAttachments = [.. ticket.TicketAttachments?.Select(a => a.ToDTO())]
             };

@@ -22,6 +22,7 @@ namespace BlazorAuthTemplate.Components.Account
 				new Claim(nameof(UserInfo.ProfilePictureUrl), profilePicture),
 				new Claim(nameof(UserInfo.FirstName), user.FirstName!),
 				new Claim(nameof(UserInfo.LastName), user.LastName!),
+				new Claim("CompanyId", user.CompanyId.ToString())
 				];
 			identity.AddClaims(customClaims);
 

@@ -5,7 +5,7 @@ namespace BlazorAuthTemplate.Client.Models
     public class InviteDTO
     {
         private DateTimeOffset _inviteDate;
-        private DateTimeOffset _joinDate;
+        private DateTimeOffset? _joinDate;
 
         public int Id { get; set; }
 
@@ -15,13 +15,14 @@ namespace BlazorAuthTemplate.Client.Models
             set => _inviteDate = value.ToUniversalTime();
         }
 
-        public DateTimeOffset JoinDate
+        public DateTimeOffset? JoinDate
         {
             get => _joinDate;
-            set => _joinDate = value.ToUniversalTime();
+            set => _joinDate = value?.ToUniversalTime();
         }
 
         [Required]
+        [EmailAddress]
         public string? InviteeEmail { get; set; }
 
         [Required]
@@ -38,6 +39,7 @@ namespace BlazorAuthTemplate.Client.Models
 
         public virtual ProjectDTO? InviteProject { get; set; }
 
+        [Required]
         public string? InvitorId { get; set; }
 
         public virtual UserDTO? Invitor { get; set; }

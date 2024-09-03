@@ -1,4 +1,6 @@
-﻿namespace BlazorAuthTemplate.Client.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BlazorAuthTemplate.Client.Models
 {
     public class TicketCommentDTO
     {
@@ -16,8 +18,9 @@
 
         public int TicketId { get; set; }
 
-        public UserDTO? User { get; set; }
+        [Required]
+		public string? UserId { get; set; }
 
-        public string? UserId { get; set; }
+		public UserDTO? User { get; set; }
     }
 }
