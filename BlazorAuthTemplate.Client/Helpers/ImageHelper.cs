@@ -22,3 +22,5 @@ namespace BlazorAuthTemplate.Client.Helpers
 		}
     }
 }
+
+//something
