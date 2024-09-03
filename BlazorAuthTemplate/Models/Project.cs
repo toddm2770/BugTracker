@@ -1,5 +1,7 @@
 ﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Data;
 using System.ComponentModel.DataAnnotations;
+using static BlazorAuthTemplate.Models.Enums;
 
 namespace BlazorAuthTemplate.Models
 {
@@ -35,10 +37,11 @@ namespace BlazorAuthTemplate.Models
             set => _endDate = value.ToUniversalTime();
         }
 
-        [Required]
-        public Enums.ProjectPriority Priority { get; set; }
+        public ProjectPriority Priority { get; set; }
 
         public bool IsArchived { get; set; }
+
+        public int CompanyId { get; set; }
 
         public virtual Company? Company { get; set; }
 
@@ -53,6 +56,12 @@ namespace BlazorAuthTemplate.Models
     {
         public static ProjectDTO ToDTO(this Project project)
         {
+
+            foreach (Ticket ticket in project.Tickets!)
+            {
+                ticket.Project = null;
+            }
+
             return new ProjectDTO()
             {
                 Id = project.Id,

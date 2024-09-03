@@ -1,5 +1,6 @@
 ﻿using BlazorAuthTemplate.Models;
 using System.ComponentModel.DataAnnotations;
+using static BlazorAuthTemplate.Models.Enums;
 
 namespace BlazorAuthTemplate.Client.Models
 {
@@ -32,20 +33,22 @@ namespace BlazorAuthTemplate.Client.Models
 
         public bool IsArchivedByProject { get; set; }
 
-        [Required]
-        public Enums.TicketPriority Priority { get; set; }
+        public TicketPriority Priority { get; set; }
 
-        [Required]
-        public Enums.TicketType TicketType { get; set; }
+        public TicketType Type { get; set; }
 
-        [Required]
-        public Enums.TicketStatus TicketStatus { get; set; }
+        public TicketStatus Status { get; set; }
 
-        [Required]
+        public int ProjectId { get; set; }
+
         public ProjectDTO? Project { get; set; }
 
         [Required]
+        public string? SubmitterUserId { get; set; }
+
         public UserDTO? SubmitterUser { get; set; }
+
+        public string? DeveloperUserId { get; set; }
 
         public UserDTO? DeveloperUser { get; set; }
 

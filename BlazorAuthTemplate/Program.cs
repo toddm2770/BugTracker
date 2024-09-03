@@ -30,11 +30,14 @@ builder.Services.AddAuthentication(options =>
     .AddIdentityCookies();
 
 var connectionString = DataUtility.GetConnectionString(builder.Configuration) ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+   options.UseNpgsql(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>()
     .AddSignInManager()
@@ -52,6 +55,11 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, GoogleEmailService>
 builder.Services.AddSingleton<IEmailSender, GoogleEmailService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    await DataUtility.ManageDataAsync(scope.ServiceProvider);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

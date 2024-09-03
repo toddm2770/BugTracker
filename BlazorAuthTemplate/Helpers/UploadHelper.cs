@@ -9,7 +9,8 @@ namespace BlazorAuthTemplate.Helpers
     public static class UploadHelper
     {
         public static readonly string DefaultProfilePicture = ImageHelper.DefaultProfilePicture;
-        public static readonly string DefaultContactImage = ImageHelper.DefaultContactImage;
+        public static readonly string DefaultCompanyImage = ImageHelper.DefaultCompanyImage;
+        public static readonly string DefaultProjectImage = ImageHelper.DefaultProjectImage;
         public static int MaxFileSize = ImageHelper.MaxFileSize;
 
         public static async Task<FileUpload> GetImageUploadAsync(IFormFile file)

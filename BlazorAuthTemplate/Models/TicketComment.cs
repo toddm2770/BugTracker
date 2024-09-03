@@ -1,4 +1,5 @@
 ﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Data;
 using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,7 +19,11 @@ namespace BlazorAuthTemplate.Models
           set => _created = value.ToUniversalTime(); 
         }
 
+        public int TicketId { get; set; }
+
         public Ticket? Ticket { get; set; }
+
+        public string? UserId { get; set; }
 
         public ApplicationUser? User { get; set; }
     }
@@ -32,7 +37,7 @@ namespace BlazorAuthTemplate.Models
                     Id = ticketComment.Id,
                     Content = ticketComment.Content,
                     Created = ticketComment.Created,
-                    TicketId = ticketComment.Ticket!.Id,
+                    TicketId = ticketComment.TicketId,
                     User = ticketComment.User?.ToDTO(),
                     UserId = ticketComment.User?.Id
                 };

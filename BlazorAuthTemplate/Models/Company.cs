@@ -1,4 +1,6 @@
 ﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Data;
+using BlazorAuthTemplate.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 namespace BlazorAuthTemplate.Models
@@ -12,11 +14,9 @@ namespace BlazorAuthTemplate.Models
 
         public string? Description { get; set; }
 
-        public FileUpload? CompanyImage { get; set; }
+		public Guid? ImageId { get; set; }
 
         public virtual FileUpload? Image { get; set; }
-
-        public string? CompanyImageURL { get; set; }
 
         public virtual ICollection<Project> Projects { get; set; } = [];
 
@@ -34,7 +34,7 @@ namespace BlazorAuthTemplate.Models
                 Id = company.Id,
                 Name = company.Name,
                 Description = company.Description,
-                CompanyImageUrl = company.CompanyImage?.Extension,
+                CompanyImageUrl = company.ImageId.HasValue ? $"api/uploads/{company.ImageId}" : UploadHelper.DefaultCompanyImage,
                 Projects = [.. company.Projects.Select(p => p.ToDTO())],
                 Members = [.. company.Members.Select(p => p.ToDTO())],
                 Invites = [.. company.Invites.Select(p => p.ToDTO())]

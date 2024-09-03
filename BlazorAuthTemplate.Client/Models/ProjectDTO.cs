@@ -1,5 +1,6 @@
 ﻿using BlazorAuthTemplate.Models;
 using System.ComponentModel.DataAnnotations;
+using static BlazorAuthTemplate.Models.Enums;
 
 namespace BlazorAuthTemplate.Client.Models
 {
@@ -35,7 +36,7 @@ namespace BlazorAuthTemplate.Client.Models
         }
 
         [Required]
-        public Enums.ProjectPriority Priority { get; set; }
+        public ProjectPriority Priority { get; set; }
 
         public bool IsArchived { get; set; }
 

@@ -1,4 +1,6 @@
 ﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Data;
+using BlazorAuthTemplate.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,9 +22,16 @@ namespace BlazorAuthTemplate.Models
           set => _Created = value.ToUniversalTime(); 
         }
 
+        public Guid? FileUploadId { get; set; }
+
         public FileUpload? FileUpload { get; set; }
 
+        [Required]
+        public string? UserId { get; set; }
+
         public ApplicationUser? User { get; set; }
+
+        public int TicketId { get; set; }
 
         public Ticket? Ticket { get; set; }
     }
@@ -37,10 +46,10 @@ namespace BlazorAuthTemplate.Models
                 FileName = ticketAttachment.FileName,
                 Description = ticketAttachment.Description,
                 Created = ticketAttachment.Created,
-                AttachmentURL = ticketAttachment.FileUpload?.Extension,
-                UserId = ticketAttachment.User?.Id,
+                AttachmentURL = $"api/uploads/{ticketAttachment.FileUploadId}",
+                UserId = ticketAttachment.UserId,
                 User = ticketAttachment.User?.ToDTO(),
-                TicketId = ticketAttachment.Ticket!.Id
+                TicketId = ticketAttachment.TicketId
             };
         }
     }
