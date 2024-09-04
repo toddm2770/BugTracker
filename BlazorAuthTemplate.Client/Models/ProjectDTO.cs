@@ -40,6 +40,8 @@ namespace BlazorAuthTemplate.Client.Models
 
         public bool IsArchived { get; set; }
 
+        public int CompanyId { get; set; }
+
         public ICollection<UserDTO>? Members { get; set; } = [];
 
         public ICollection<TicketDTO>? Tickets { get; set; } = [];

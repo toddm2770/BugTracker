@@ -1,7 +1,9 @@
+using BlazorAuthTemplate.Client.Services.Interfaces;
 using BlazorAuthTemplate.Components;
 using BlazorAuthTemplate.Components.Account;
 using BlazorAuthTemplate.Data;
 using BlazorAuthTemplate.Services;
+using BlazorAuthTemplate.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -49,6 +51,9 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 //builder.Services.AddSingleton<IEmailSender<ApplicationUser>, EmailService>();
 //builder.Services.AddSingleton<IEmailSender, EmailService>();
+
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, GoogleEmailService>();

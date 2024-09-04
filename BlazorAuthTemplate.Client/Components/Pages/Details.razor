@@ -1,0 +1,71 @@
+﻿@page "/details"
+@using BlazorAuthTemplate.Client.Components.UI
+@using BlazorAuthTemplate.Client.Helpers
+@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
+@using BlazorAuthTemplate.Models
+
+@rendermode InteractiveServer
+
+@inject IProjectService ProjectService
+
+<div class="container mt-3">
+	<div class="row">
+		<div class="col-2">
+
+			@foreach (var Project in projects)
+			{
+				<h5>
+					@Project.Name <button class="btn btn-small btn-success" @onclick="() => SelectProject(Project)"><i class="bi bi-eye"></i></button>
+				</h5>
+				<hr />
+			}
+
+		</div>
+		<div class="col-10">
+			<ProjectDetails Project="SelectedProject" />
+		</div>
+	</div>
+
+</div>
+
+
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	private UserInfo? userInfo;
+
+	private CompanyDTO? company { get; set; }
+
+	private ProjectDTO? project { get; set; }
+
+	private ProjectDTO? SelectedProject { get; set; }
+
+	private IEnumerable<ProjectDTO> projects = [];
+
+	private int number = 0;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+			if (userInfo != null)
+			{
+				projects = await ProjectService.GetAllProjectsAsync(userInfo.CompanyId);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
+
+	private void SelectProject(ProjectDTO Project)
+	{
+		SelectedProject = Project;
+	}
+}

@@ -1,0 +1,43 @@
+﻿@using BlazorAuthTemplate.Client.Models
+
+<h3>@Project?.Name Details</h3>
+<h5>Created: @Project?.Created, Start Date: @Project?.StartDate, End Date: @Project?.EndDate</h5>
+<h5>Priority: @Project?.Priority</h5>
+<h5>Description:</h5>
+<p>@Project?.Description</p>
+<h5>Tickets:</h5>
+@if (Project?.Tickets != null)
+{
+	@foreach (var Ticket in Project.Tickets)
+	{
+		<p>@Ticket.Title</p>
+	}
+}
+else
+{
+	<p>No tickets available.</p>
+}
+
+<h5>Members:</h5>
+@if (Project?.Members != null)
+{
+	@foreach (var Member in Project.Members)
+	{
+		<p>@Member.FirstName @Member.LastName</p>
+	}
+}
+else
+{
+	<p>No members available.</p>
+}
+
+@code {
+
+	[Parameter, EditorRequired]
+	public ProjectDTO? Project { get; set; }
+
+	public IEnumerable<TicketDTO>? tickets { get; set; }
+
+	public TicketDTO? ticket { get; set; }
+
+}

@@ -1,7 +1,113 @@
 ﻿@page "/"
+@using BlazorAuthTemplate.Client.Helpers
+@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
+
+@inject IProjectService ProjectService
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+@if (userInfo != null)
+{
+	<div class="container mt-3">
+		<h1>Projects</h1>
+
+		<a href="#">
+			<button class="btn btn-success">
+				Add New Projects
+			</button>
+		</a>
+
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th scope="col">#</th>
+					<th scope="col">Project Name</th>
+					<th scope="col">Created Date</th>
+					<th scope="col">Start Date</th>
+					<th scope="col">End Date</th>
+					<th scope="col">Priority</th>
+					<th scope="col">Archived</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var Project in projects)
+				{
+					number++;
+					<tr>
+						<th scope="row">@number</th>
+						<td>@Project.Name</td>
+						<td>@Project.Created.ToLocalTime()</td>
+						<td>@Project.StartDate.ToLocalTime()</td>
+						<td>@Project.EndDate.ToLocalTime()</td>
+						<td>@Project.Priority</td>
+						<td>@Project.IsArchived</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
+else
+{
+	<div class="d-flex h-100 flex-column justify-content-center container-xxl">
+		<div class="row">
+			<div class="col-12 col-md-6 d-flex flex-column">
+				<h1></h1>
+				<div class="subTitle">
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+					sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+				</div>
+				<div class="mt-2 fw-bold">Built with pride using cutting edge tech:</div>
+				<div class="stackIcons">
+					<i class="devicon-csharp-plain colored"></i>
+					<i class="devicon-blazor-original colored"></i>
+					<i class="devicon-dotnetcore-plain colored"></i>
+					<i class="devicon-postgresql-plain colored"></i>
+					<i class="devicon-bootstrap-plain colored"></i>
+				</div>
+				<div class="text-center text-md-start">
+					<a href="/Account/Login" class="btn btn-large btn-primary rounded-pill">Get Started</a>
+				</div>
+			</div>
+			<div class="col-12 col-md-6 order-first order-md-last">
+				<img src="image/undraw_project_complete_lwss.svg" class="img-fluid" />
+			</div>
+
+		</div>
+	</div>
+}
+
+
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	private UserInfo? userInfo;
+
+	private CompanyDTO? company { get; set; }
+
+	private IEnumerable<ProjectDTO> projects = [];
+
+	private int number = 0;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+			if (userInfo != null)
+			{
+
+				projects = await ProjectService.GetAllProjectsAsync(userInfo.CompanyId);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
+}
