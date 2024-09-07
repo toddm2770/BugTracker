@@ -1,9 +1,96 @@
-﻿@using BlazorAuthTemplate.Client.Services.Interfaces
+﻿@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
+@using static BlazorAuthTemplate.Models.Enums
 
 @inject IProjectService ProjectService
 
-@if()
+
+	<EditForm Model="projectForm" OnValidSubmit="HandleSubmit">
+		<DataAnnotationsValidator />
+
+		<div class="mb-2">
+			<label class="form-label">Name</label>
+			<InputText class="form-control" @bind-Value="projectForm.Name" />
+			<ValidationMessage For="() => projectForm.Name" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Description</label>
+			<InputTextArea class="form-control" @bind-Value="projectForm.Description" />
+			<ValidationMessage For="() => projectForm.Description" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Priority</label>
+			<InputSelect class="form-select" @bind-Value="projectForm.Priority">
+				@foreach (var priority in Enum.GetValues(typeof(ProjectPriority)).Cast<ProjectPriority>())
+				{
+					<option value="@priority">@priority</option>
+				}
+			</InputSelect>
+			<ValidationMessage For="() => projectForm.Priority" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Start Date</label>
+			<input type="date" @bind-value="projectForm.StartDate" />
+			<ValidationMessage For="() => projectForm.StartDate" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Start Date</label>
+			<input type="date" @bind-value="projectForm.EndDate" />
+			<ValidationMessage For="() => projectForm.EndDate" />
+		</div>
+		
+		<button class="btn btn-success" type="submit">
+			Save
+		</button>
+
+		<button @onclick="CancelEdit" class="btn btn-warning mt-1">
+			Cancel
+		</button>
+
+	</EditForm>
+
 
 @code {
 
+	[Parameter, EditorRequired]
+	public ProjectDTO? Project { get; set; }
+
+	[Parameter, EditorRequired]
+	public EventCallback<ProjectDTO> OnSubmit { get; set; }
+
+	private ProjectDTO? projectForm;
+
+	public ProjectPriority priority { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		if (Project != null)
+		{
+			projectForm = new ProjectDTO
+			{
+				Name = Project.Name,
+				Description = Project.Description,
+				Priority = Project.Priority,
+				StartDate = Project.StartDate,
+				EndDate = Project.EndDate
+			};
+		}
+	}
+
+	public async Task HandleSubmit()
+	{
+		await OnSubmit.InvokeAsync(projectForm);
+	}
+
+	public async void CancelEdit()
+	{
+		projectForm = new ProjectDTO
+			{
+				Name = Project.Name,
+				Description = Project.Description,
+				Priority = Project.Priority,
+				StartDate = Project.StartDate,
+				EndDate = Project.EndDate
+			};
+	}
 }

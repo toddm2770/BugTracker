@@ -1,5 +1,55 @@
-﻿<h3>CreateProject</h3>
+﻿@page "/create"
+
+@rendermode InteractiveWebAssembly
+
+@using BlazorAuthTemplate.Client.Components.UI
+@using BlazorAuthTemplate.Client.Helpers
+@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
+
+@inject IProjectService ProjectService
+
+
+
+<h3>Create New Project</h3>
+<div class="container">
+	<ProjectForm Project="new ProjectDTO()" OnSubmit="HandleSubmit"></ProjectForm>
+</div>
 
 @code {
+
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	private UserInfo? userInfo;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex.Message);
+			throw;
+		}
+
+	}
+
+	private async Task HandleSubmit(ProjectDTO project)
+	{
+		int companyId = userInfo!.CompanyId;
+
+		try
+		{
+			await ProjectService.AddProjectAsync(project, companyId);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
 
 }

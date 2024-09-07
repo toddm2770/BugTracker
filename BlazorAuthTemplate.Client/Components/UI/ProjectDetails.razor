@@ -1,7 +1,19 @@
-﻿@using BlazorAuthTemplate.Client.Models
+﻿@rendermode InteractiveWebAssembly
+
+@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
 
 <h3>@Project?.Name Details</h3>
-<h5>Created: @Project?.Created, Start Date: @Project?.StartDate, End Date: @Project?.EndDate</h5>
+<h5>Archived:</h5>
+@if (Project?.IsArchived == true)
+{
+	<p>Yes</p>
+}
+else
+{
+	<p>No</p>
+}
+<h5>Created:</h5> @Project?.Created <h5>Start Date:</h5> @Project?.StartDate <h5>End Date:</h5> @Project?.EndDate
 <h5>Priority: @Project?.Priority</h5>
 <h5>Description:</h5>
 <p>@Project?.Description</p>
@@ -39,5 +51,6 @@ else
 	public IEnumerable<TicketDTO>? tickets { get; set; }
 
 	public TicketDTO? ticket { get; set; }
+
 
 }

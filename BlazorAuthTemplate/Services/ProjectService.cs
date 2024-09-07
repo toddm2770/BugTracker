@@ -10,19 +10,33 @@ namespace BlazorAuthTemplate.Services
 
 		private readonly IProjectRepository _repository;
 
-		public ProjectService(IProjectRepository repository) 
+		public ProjectService(IProjectRepository repository)
 		{
 			_repository = repository;
 		}
 
-		public Task<ProjectDTO> AddProjectAsync(ProjectDTO project, int companyId)
+		public async Task<ProjectDTO> AddProjectAsync(ProjectDTO project, int companyId)
 		{
-			throw new NotImplementedException();
+			Project newProject = new()
+			{
+				Name = project.Name,
+				Description = project.Description,
+				CompanyId = companyId,
+				Priority = project.Priority,
+				Created = DateTimeOffset.Now,
+				StartDate = project.StartDate,
+				EndDate = project.EndDate
+			};
+
+			newProject = await _repository.AddProjectAsync(newProject, companyId);
+
+			return newProject.ToDTO();
+
 		}
 
-		public Task ArchiveProjectAsync(int projectId, int companyId)
+		public async Task ArchiveProjectAsync(int projectId, int companyId)
 		{
-			throw new NotImplementedException();
+			await _repository.ArchiveProjectAsync(projectId, companyId);
 		}
 
 		public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(int companyId)
@@ -32,9 +46,11 @@ namespace BlazorAuthTemplate.Services
 			return projects.Select(p => p.ToDTO());
 		}
 
-		public Task<IEnumerable<ProjectDTO>> GetArchivedProjects(int companyId)
+		public async Task<IEnumerable<ProjectDTO>> GetArchivedProjects(int companyId)
 		{
-			throw new NotImplementedException();
+			IEnumerable<Project> projects = await _repository.GetArchivedProjects(companyId);
+
+			return projects.Select(p => p.ToDTO());
 		}
 
 		public async Task<ProjectDTO?> GetProjectByCompanyId(int projectId, int companyId)
@@ -44,16 +60,27 @@ namespace BlazorAuthTemplate.Services
 			return project?.ToDTO();
 		}
 
-		public Task RestoreProjectAsync(int projectId, int companyId)
+		public async Task RestoreProjectAsync(int projectId, int companyId)
 		{
-			throw new NotImplementedException();
+			await _repository.RestoreProjectAsync(projectId, companyId);
 		}
 
 
 
-		public Task UpdateProjectAsync(ProjectDTO project, int companyId)
+		public async Task UpdateProjectAsync(ProjectDTO project, int companyId)
 		{
-			throw new NotImplementedException();
+				Project? originalProject = await _repository.GetProjectByCompanyId(project.Id, companyId);
+
+			if (originalProject == null) { return; }
+
+			originalProject.Name = project.Name;
+			originalProject.Description = project.Description;
+			originalProject.StartDate = project.StartDate;
+			originalProject.EndDate = project.EndDate;
+			originalProject.Priority = project.Priority;
+
+			await _repository.UpdateProjectAsync(originalProject, companyId);
+
 		}
 	}
 }
