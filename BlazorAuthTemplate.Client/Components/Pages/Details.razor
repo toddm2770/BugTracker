@@ -6,7 +6,7 @@
 @using BlazorAuthTemplate.Client.Services.Interfaces
 @using BlazorAuthTemplate.Models
 
-@rendermode InteractiveWebAssembly
+@rendermode InteractiveAuto
 
 @inject IProjectService ProjectService
 
@@ -71,7 +71,7 @@
 
 			@if(status == Status.Editing && SelectedProject is not null)
 			{
-				<ProjectForm Project="SelectedProject" OnSubmit="UpdateProject" />
+				<ProjectForm Project="SelectedProject" OnSubmit="UpdateProject" OnCancel="CancelEdit" />
 			}
 
 		</div>
@@ -120,9 +120,12 @@
 
 			if (userInfo != null)
 			{
-				projects = await ProjectService.GetAllProjectsAsync(userInfo.CompanyId);
+				int companyId = userInfo.CompanyId;
 
-				archivedProjects = await ProjectService.GetArchivedProjects(userInfo.CompanyId);
+				projects = await ProjectService.GetAllProjectsAsync(companyId);
+
+				archivedProjects = await ProjectService.GetArchivedProjects(companyId);
+
 			}
 		}
 		catch (Exception ex)
@@ -159,7 +162,7 @@
 
 			projects = await ProjectService.GetAllProjectsAsync(userInfo!.CompanyId);
 
-			archivedProjects = await ProjectService.GetArchivedProjects(userInfo.CompanyId);
+			archivedProjects = await ProjectService.GetArchivedProjects(companyId);
 
 			StateHasChanged();
 		}
@@ -172,6 +175,14 @@
 
 	public async Task RestoreProject(int projectId, int companyId, ProjectDTO SProject)
 	{
+		if (SProject.Tickets.Count() != 0)
+		{
+			foreach (var ticket in SProject.Tickets)
+			{
+				ticket.IsArchivedByProject = false;
+			}
+		}
+
 		try
 		{
 			await ProjectService.RestoreProjectAsync(projectId, companyId);
@@ -182,7 +193,7 @@
 
 			projects = await ProjectService.GetAllProjectsAsync(userInfo!.CompanyId);
 
-			archivedProjects = await ProjectService.GetArchivedProjects(userInfo.CompanyId);
+			archivedProjects = await ProjectService.GetArchivedProjects(companyId);
 
 			StateHasChanged();
 		}
@@ -202,6 +213,11 @@
 		SelectedProject.EndDate = updatedProject.EndDate;
 
 		await ProjectService.UpdateProjectAsync(SelectedProject, SelectedProject.CompanyId);
+		status = Status.Viewing;
+	}
+
+	private void CancelEdit()
+	{
 		status = Status.Viewing;
 	}
 }

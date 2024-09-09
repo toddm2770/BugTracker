@@ -38,6 +38,10 @@ namespace BlazorAuthTemplate.Services
 
 			if (project != null)
 			{
+				foreach(var ticket in project.Tickets)
+				{
+					ticket.IsArchivedByProject = true;
+				}
 				project.IsArchived = true;
 				await context.SaveChangesAsync();
 			}
@@ -48,7 +52,7 @@ namespace BlazorAuthTemplate.Services
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
 			List<Project> projects = await context.Projects
-												  .Where(c => c.CompanyId == companyId && c.IsArchived == false)
+												  .Where(p => p.CompanyId == companyId && p.IsArchived == false)
 												  .Include(p => p.Tickets)
 												  .Include(p => p.Members)
 												  .ToListAsync();
@@ -84,9 +88,9 @@ namespace BlazorAuthTemplate.Services
 
 			Project? project = await context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
 
-			foreach(var ticket in context.Projects)
+			foreach(var ticket in project.Tickets)
 			{
-				ticket.IsArchived = false;
+				ticket.IsArchivedByProject = false;
 			}
 
 			if (project != null)

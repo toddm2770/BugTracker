@@ -13,16 +13,73 @@ else
 {
 	<p>No</p>
 }
-<h5>Created:</h5> @Project?.Created <h5>Start Date:</h5> @Project?.StartDate <h5>End Date:</h5> @Project?.EndDate
+<h5>Created:</h5> @Project?.Created.ToLocalTime().DateTime <h5>Start Date:</h5> @Project?.StartDate.ToLocalTime().DateTime <h5>End Date:</h5> @Project?.EndDate.ToLocalTime().DateTime
 <h5>Priority: @Project?.Priority</h5>
 <h5>Description:</h5>
 <p>@Project?.Description</p>
 <h5>Tickets:</h5>
 @if (Project?.Tickets != null)
 {
+	int collapse = 1;
+
 	@foreach (var Ticket in Project.Tickets)
 	{
-		<p>@Ticket.Title</p>
+		<div class="accordion" id="ticketAccordion">
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@collapse">
+						<h4>@Ticket.Title</h4>
+					</button>
+				</h2>
+				<div id="collapse-@collapse" class="accordion-collapse collapse" data-bs-parent="#ticketAccordion">
+					<div class="accordion-body">
+						<div class="row">
+							<div class="col-4">
+								<h5>Created Date:</h5>
+								<p>@Ticket.Created.ToLocalTime().DateTime</p>
+
+								@if(Ticket.Updated is not null)
+								{
+									<h5>Updated Date:</h5>
+									<p>@Ticket.Updated?.ToLocalTime().DateTime</p>
+								}
+
+								<h5>Archived:</h5>
+								<p>@Ticket.IsArchived</p>
+								<h5>Archived by Project:</h5>
+								<p>@Ticket.IsArchivedByProject</p>
+								<h5>Priority:</h5>
+								<p>@Ticket.Priority</p>
+								<h5>Ticket Type:</h5>
+								<p>@Ticket.Type</p>
+								<h5>Ticket Status:</h5>
+								<p>@Ticket.Status</p>
+
+								@if(Ticket.SubmitterUser is not null)
+								{
+									<h5>Submitter User:</h5>
+									<p>@Ticket.SubmitterUser.FullName</p>
+								}
+
+								@if(Ticket.DeveloperUser is not null)
+								{
+									<h5>Developer User:</h5>
+									<p>@Ticket.DeveloperUser.FullName</p>
+								}
+
+							</div>
+							<div class="col-8">
+								<h5>Description:</h5>
+								<p>@Ticket.Description</p>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		collapse++;
 	}
 }
 else

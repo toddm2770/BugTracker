@@ -54,6 +54,24 @@ namespace BlazorAuthTemplate.Controllers
 			}
 		}
 
+		[HttpGet("GetArchivedProjects")]
+		public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetArchivedProjects()
+		{
+			try
+			{
+				IEnumerable<ProjectDTO> projects = [];
+
+				projects = await _projectService.GetArchivedProjects(_companyId);
+
+				return Ok(projects);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				return Problem();
+			}
+		}
+
 		[HttpGet("{projectId:int}")]
 		public async Task<ActionResult<ProjectDTO>> GetProjectById([FromRoute] int projectId)
 		{
@@ -70,12 +88,42 @@ namespace BlazorAuthTemplate.Controllers
 			}
 		}
 
-		[HttpPut("{projectId}")]
+		[HttpPut("{projectId}/Archive")]
 		public async Task<ActionResult> ArchiveProject([FromRoute] int projectId)
 		{
 			try
 			{
 				await _projectService.ArchiveProjectAsync(projectId, _companyId);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				return Problem();
+			}
+		}
+
+		[HttpPut("{projectId}/Restore")]
+		public async Task<ActionResult> RestoreProject([FromRoute] int projectId)
+		{
+			try
+			{
+				await _projectService.RestoreProjectAsync(projectId, _companyId);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				return Problem();
+			}
+		}
+
+		[HttpPut]
+		public async Task<ActionResult> UpdateProject([FromBody] ProjectDTO project)
+		{
+			try
+			{
+				await _projectService.UpdateProjectAsync(project, _companyId);
 				return Ok();
 			}
 			catch (Exception ex)

@@ -11,7 +11,7 @@
 @if (userInfo != null)
 {
 	<div class="container mt-3">
-		<h1>Projects</h1>
+		<h1>Published Projects</h1>
 
 		<a href="/create">
 			<button class="btn btn-success">
@@ -33,6 +33,36 @@
 			</thead>
 			<tbody>
 				@foreach (var Project in projects)
+				{
+					number++;
+					<tr>
+						<th scope="row">@number</th>
+						<td>@Project.Name</td>
+						<td>@Project.Created.ToLocalTime()</td>
+						<td>@Project.StartDate.ToLocalTime()</td>
+						<td>@Project.EndDate.ToLocalTime()</td>
+						<td>@Project.Priority</td>
+						<td>@Project.IsArchived</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+
+		<h1 class="mt-3">Archived Projects</h1>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th scope="col">#</th>
+					<th scope="col">Project Name</th>
+					<th scope="col">Created Date</th>
+					<th scope="col">Start Date</th>
+					<th scope="col">End Date</th>
+					<th scope="col">Priority</th>
+					<th scope="col">Archived</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var Project in archivedProjects)
 				{
 					number++;
 					<tr>
@@ -90,6 +120,8 @@ else
 
 	private IEnumerable<ProjectDTO> projects = [];
 
+	private IEnumerable<ProjectDTO> archivedProjects = [];
+
 	private int number = 0;
 
 	protected override async Task OnInitializedAsync()
@@ -100,8 +132,9 @@ else
 
 			if (userInfo != null)
 			{
-
 				projects = await ProjectService.GetAllProjectsAsync(userInfo.CompanyId);
+
+				archivedProjects = await ProjectService.GetArchivedProjects(userInfo.CompanyId);
 			}
 		}
 		catch (Exception ex)

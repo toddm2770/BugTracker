@@ -4,7 +4,6 @@
 
 @inject IProjectService ProjectService
 
-
 	<EditForm Model="projectForm" OnValidSubmit="HandleSubmit">
 		<DataAnnotationsValidator />
 
@@ -58,6 +57,9 @@
 	[Parameter, EditorRequired]
 	public EventCallback<ProjectDTO> OnSubmit { get; set; }
 
+	[Parameter]
+	public EventCallback OnCancel { get; set; }
+
 	private ProjectDTO? projectForm;
 
 	public ProjectPriority priority { get; set; }
@@ -82,7 +84,7 @@
 		await OnSubmit.InvokeAsync(projectForm);
 	}
 
-	public async void CancelEdit()
+	public async Task CancelEdit()
 	{
 		projectForm = new ProjectDTO
 			{
@@ -92,5 +94,7 @@
 				StartDate = Project.StartDate,
 				EndDate = Project.EndDate
 			};
+
+			await OnCancel.InvokeAsync();
 	}
 }

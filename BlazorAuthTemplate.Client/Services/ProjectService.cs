@@ -33,7 +33,7 @@ namespace BlazorAuthTemplate.Client.Services
 
 		public async Task ArchiveProjectAsync(int projectId, int companyId)
 		{
-			HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/projects/{projectId}", projectId);
+			HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/projects/{projectId}/Archive", projectId);
 			response.EnsureSuccessStatusCode();
 		}
 
@@ -45,8 +45,8 @@ namespace BlazorAuthTemplate.Client.Services
 
 		public async Task<IEnumerable<ProjectDTO>> GetArchivedProjects(int companyId)
 		{
-			var projects = await _httpClient.GetFromJsonAsync<IEnumerable<ProjectDTO>>($"api/projects") ?? [];
-			return projects.Where(p => p.IsArchived == true);
+			var projects = await _httpClient.GetFromJsonAsync<IEnumerable<ProjectDTO>>($"api/projects/GetArchivedProjects") ?? [];
+			return projects;
 		}
 
 		public async Task<ProjectDTO?> GetProjectByCompanyId(int projectId, int companyId)
@@ -54,14 +54,16 @@ namespace BlazorAuthTemplate.Client.Services
 			return await _httpClient.GetFromJsonAsync<ProjectDTO>($"api/projects/{projectId}, {companyId}");
 		}
 
-		public Task RestoreProjectAsync(int projectId, int companyId)
+		public async Task RestoreProjectAsync(int projectId, int companyId)
 		{
-			throw new NotImplementedException();
+			HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/projects/{projectId}/Restore", projectId);
+			response.EnsureSuccessStatusCode();
 		}
 
-		public Task UpdateProjectAsync(ProjectDTO project, int companyId)
+		public async Task UpdateProjectAsync(ProjectDTO project, int companyId)
 		{
-			throw new NotImplementedException();
+			HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/projects", project);
+			response.EnsureSuccessStatusCode();
 		}
 	}
 }
