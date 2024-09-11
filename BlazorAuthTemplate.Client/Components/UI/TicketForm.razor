@@ -1,0 +1,104 @@
+﻿@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
+@using static BlazorAuthTemplate.Models.Enums
+
+@inject ITicketService TicketService
+
+<h3>TicketForm</h3>
+
+@if(ticketForm is not null)
+{
+	<EditForm Model="ticketForm" OnValidSubmit="HandleSubmit">
+		<div class="mb-2">
+			<label class="form-label">Title</label>
+			<InputText class="form-control" @bind-Value="ticketForm.Title" />
+			<ValidationMessage For="() => ticketForm.Title" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Description</label>
+			<InputTextArea class="form-control" @bind-Value="ticketForm.Description" />
+			<ValidationMessage For="() => ticketForm.Description" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Priority</label>
+			<InputSelect class="form-select" @bind-Value="ticketForm.Priority">
+			@foreach(var priority in Enum.GetValues(typeof(TicketPriority)).Cast<TicketPriority>())
+			{
+				<option value="@priority">@priority</option>
+			}
+			</InputSelect>
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Type</label>
+			<InputSelect class="form-select" @bind-Value="ticketForm.Type">
+			@foreach(var type in Enum.GetValues(typeof(TicketType)).Cast<TicketType>())
+				{
+					<option value="@type">@type</option>
+				}
+			</InputSelect>
+		</div>
+		<button class="btn btn-success" type="submit">
+			Save
+		</button>
+		<button class="btn btn-danger" @onclick="() => CancelEdit()">
+			Cancel
+		</button>
+	</EditForm>
+}
+
+
+
+@code {
+	[Parameter, EditorRequired]
+	public TicketDTO? Ticket { get; set; }
+
+	[Parameter, EditorRequired]
+	public EventCallback<ProjectDTO> OnSubmit { get; set; }
+
+	[Parameter]
+	public EventCallback OnCancel { get; set; }
+
+	private TicketDTO? ticketForm { get; set; }
+
+	public TicketPriority priority { get; set; }
+
+	public TicketType type { get; set; }
+
+	private UserInfo? userInfo;
+
+	protected override void OnParametersSet()
+	{
+		if (Ticket != null)
+		{
+			ticketForm = new TicketDTO
+				{
+					Title = Ticket.Title,
+					Description = Ticket.Description,
+					Priority = Ticket.Priority,
+					Type = Ticket.Type
+				};
+		}
+	}
+
+	public async Task HandleSubmit()
+	{
+		await OnSubmit.InvokeAsync();
+	}
+
+	public async Task CancelEdit()
+	{
+		if(Ticket != null)
+		{
+			ticketForm = new TicketDTO
+				{
+					Title = Ticket.Title,
+					Description = Ticket.Description,
+					Priority = Ticket.Priority,
+					Type = Ticket.Type
+				};
+		}
+
+		await OnCancel.InvokeAsync();
+	}
+}
+

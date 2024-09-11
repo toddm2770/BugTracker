@@ -1,5 +1,8 @@
-﻿@rendermode InteractiveWebAssembly
+﻿@rendermode InteractiveServer
 
+@inject ITicketService TicketService
+
+@using BlazorAuthTemplate.Client.Helpers
 @using BlazorAuthTemplate.Client.Models
 @using BlazorAuthTemplate.Client.Services.Interfaces
 
@@ -21,7 +24,8 @@ else
 @if (Project?.Tickets != null)
 {
 	int collapse = 1;
-
+	<button class="btn btn-success">
+	</button>
 	@foreach (var Ticket in Project.Tickets)
 	{
 		<div class="accordion" id="ticketAccordion">
@@ -38,7 +42,7 @@ else
 								<h5>Created Date:</h5>
 								<p>@Ticket.Created.ToLocalTime().DateTime</p>
 
-								@if(Ticket.Updated is not null)
+								@if (Ticket.Updated is not null)
 								{
 									<h5>Updated Date:</h5>
 									<p>@Ticket.Updated?.ToLocalTime().DateTime</p>
@@ -55,13 +59,13 @@ else
 								<h5>Ticket Status:</h5>
 								<p>@Ticket.Status</p>
 
-								@if(Ticket.SubmitterUser is not null)
+								@if (Ticket.SubmitterUser is not null)
 								{
 									<h5>Submitter User:</h5>
 									<p>@Ticket.SubmitterUser.FullName</p>
 								}
 
-								@if(Ticket.DeveloperUser is not null)
+								@if (Ticket.DeveloperUser is not null)
 								{
 									<h5>Developer User:</h5>
 									<p>@Ticket.DeveloperUser.FullName</p>
@@ -72,6 +76,15 @@ else
 								<h5>Description:</h5>
 								<p>@Ticket.Description</p>
 							</div>
+							<button class="btn btn-warning" @onclick="() => EditTicket(Ticket)">
+								Edit
+							</button>
+							@if (status == Status.Editing && selectedTicket is not null)
+							{
+								<TicketForm Ticket="selectedTicket" OnSubmit="() => UpdateTicket(selectedTicket)" OnCancel="CancelEdit" />
+							}
+
+
 						</div>
 
 					</div>
@@ -102,12 +115,61 @@ else
 
 @code {
 
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
 	[Parameter, EditorRequired]
 	public ProjectDTO? Project { get; set; }
 
 	public IEnumerable<TicketDTO>? tickets { get; set; }
 
-	public TicketDTO? ticket { get; set; }
+	public TicketDTO? selectedTicket { get; set; }
 
+	private Status status = Status.Viewing;
+
+	UserInfo? userInfo { get; set; }
+
+	private enum Status
+	{
+		Viewing,
+		Editing
+	}
+
+	private void EditTicket(TicketDTO ticket)
+	{
+		selectedTicket = ticket;
+		status = Status.Editing;
+	}
+
+	public async Task UpdateTicket(TicketDTO updatedTicket)
+	{
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+		selectedTicket.Title = updatedTicket.Title;
+		selectedTicket.Description = updatedTicket.Description;
+		selectedTicket.Priority = updatedTicket.Priority;
+		selectedTicket.Type = updatedTicket.Type;
+
+		if (userInfo != null)
+		{
+			try
+			{
+				await TicketService.UpdateTicketAsync(selectedTicket, userInfo.CompanyId, userInfo.UserId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+
+		}
+
+		status = Status.Viewing;
+	}
+
+	private void CancelEdit()
+	{
+		status = Status.Viewing;
+	}
 
 }

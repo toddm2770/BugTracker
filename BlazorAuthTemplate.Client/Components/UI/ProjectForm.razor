@@ -4,6 +4,8 @@
 
 @inject IProjectService ProjectService
 
+@if(projectForm is not null)
+{
 	<EditForm Model="projectForm" OnValidSubmit="HandleSubmit">
 		<DataAnnotationsValidator />
 
@@ -37,7 +39,7 @@
 			<input type="date" @bind-value="projectForm.EndDate" />
 			<ValidationMessage For="() => projectForm.EndDate" />
 		</div>
-		
+
 		<button class="btn btn-success" type="submit">
 			Save
 		</button>
@@ -47,6 +49,9 @@
 		</button>
 
 	</EditForm>
+}
+
+
 
 
 @code {

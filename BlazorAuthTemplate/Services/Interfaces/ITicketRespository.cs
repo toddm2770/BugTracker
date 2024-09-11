@@ -1,0 +1,19 @@
+﻿using BlazorAuthTemplate.Models;
+
+namespace BlazorAuthTemplate.Services.Interfaces
+{
+	public interface ITicketRespository
+	{
+		Task<IEnumerable<Ticket>> GetAllTicketsAsync(int companyId);
+
+		Task<Ticket?> GetTicketByIdAsync(int ticketId, int companyId);
+
+		Task<Ticket> AddTicketAsync(Ticket ticket, int companyId);
+
+		Task<Ticket> UpdateTicketAsync(Ticket ticket, int companyId, string userId);
+
+		Task ArchiveTicketAsync(int ticketId, int companyId);
+
+		Task RestoreTicketAsync(int ticketId, int companyId);
+	}
+}
