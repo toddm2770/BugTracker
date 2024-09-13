@@ -1,6 +1,5 @@
-﻿@rendermode InteractiveServer
-
-@inject ITicketService TicketService
+﻿@inject ITicketService TicketService
+@inject IProjectService ProjectService
 
 @using BlazorAuthTemplate.Client.Helpers
 @using BlazorAuthTemplate.Client.Models
@@ -20,12 +19,18 @@ else
 <h5>Priority: @Project?.Priority</h5>
 <h5>Description:</h5>
 <p>@Project?.Description</p>
-<h5>Tickets:</h5>
+<h3>Tickets:</h3>
 @if (Project?.Tickets != null)
 {
 	int collapse = 1;
-	<button class="btn btn-success">
+	<button class="btn btn-success mb-2" @onclick="() => status = Status.Adding">
+		Add Ticket
 	</button>
+
+	@if(status == Status.Adding)
+	{
+		<TicketForm Ticket="newTicket" OnSubmit="AddTicket" OnCancel="CancelEdit" />
+	}
 	@foreach (var Ticket in Project.Tickets)
 	{
 		<div class="accordion" id="ticketAccordion">
@@ -79,9 +84,10 @@ else
 							<button class="btn btn-warning" @onclick="() => EditTicket(Ticket)">
 								Edit
 							</button>
+
 							@if (status == Status.Editing && selectedTicket is not null)
 							{
-								<TicketForm Ticket="selectedTicket" OnSubmit="() => UpdateTicket(selectedTicket)" OnCancel="CancelEdit" />
+								<TicketForm Ticket="selectedTicket" OnSubmit="UpdateTicket" OnCancel="CancelEdit" />
 							}
 
 
@@ -123,6 +129,8 @@ else
 
 	public IEnumerable<TicketDTO>? tickets { get; set; }
 
+	public TicketDTO? newTicket { get; set; }
+
 	public TicketDTO? selectedTicket { get; set; }
 
 	private Status status = Status.Viewing;
@@ -132,7 +140,21 @@ else
 	private enum Status
 	{
 		Viewing,
-		Editing
+		Editing,
+		Adding
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		newTicket = new();
+
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+		newTicket.SubmitterUserId = userInfo?.UserId;
+
+		newTicket.ProjectId = Project!.Id;
+
+		
 	}
 
 	private void EditTicket(TicketDTO ticket)
@@ -143,12 +165,13 @@ else
 
 	public async Task UpdateTicket(TicketDTO updatedTicket)
 	{
-		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
-
 		selectedTicket.Title = updatedTicket.Title;
 		selectedTicket.Description = updatedTicket.Description;
 		selectedTicket.Priority = updatedTicket.Priority;
 		selectedTicket.Type = updatedTicket.Type;
+		selectedTicket.SubmitterUserId = updatedTicket.SubmitterUserId;
+		selectedTicket.Project = updatedTicket.Project;
+		selectedTicket.Status = updatedTicket.Status;
 
 		if (userInfo != null)
 		{
@@ -167,9 +190,27 @@ else
 		status = Status.Viewing;
 	}
 
+	public async Task AddTicket(TicketDTO newTicket)
+	{
+
+		int companyId = userInfo!.CompanyId;
+
+		try
+		{
+			await TicketService.AddTicketAsync(newTicket, companyId);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+		status = Status.Viewing;
+
+		Project = await ProjectService.GetProjectByCompanyId(Project!.Id, companyId);
+	}
+
 	private void CancelEdit()
 	{
 		status = Status.Viewing;
 	}
-
 }

@@ -2,47 +2,61 @@
 @using BlazorAuthTemplate.Client.Helpers
 @using BlazorAuthTemplate.Client.Models
 @using BlazorAuthTemplate.Client.Services.Interfaces
+@using BlazorAuthTemplate.Client.Components.UI
 
+@inject ITicketService TicketService
 @inject IProjectService ProjectService
 
 <PageTitle>Home</PageTitle>
 
+@rendermode InteractiveServer
 
 @if (userInfo != null)
 {
 	<div class="container mt-3">
 		<h1>Published Projects</h1>
 
-		<a href="/create">
-			<button class="btn btn-success">
-				Add New Projects
-			</button>
-		</a>
+		<button class="btn btn-success" @onclick="() => status = Status.EditingProject">
+			Add New Project
+		</button>
+
+		<button class="btn btn-warning" @onclick="() => status = Status.EditingTicket">
+			Add New Ticket
+		</button>
+
+		@if(status == Status.EditingProject)
+		{
+			<ProjectForm Project="newProject" OnSubmit="AddProject" OnCancel="CancelAddProject" />
+		}
+
+		@if (status == Status.EditingTicket)
+		{
+			<TicketForm Ticket="newTicket" OnSubmit="AddTicket" OnCancel="CancelAddTicket" />
+		}
 
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th scope="col">#</th>
 					<th scope="col">Project Name</th>
 					<th scope="col">Created Date</th>
 					<th scope="col">Start Date</th>
 					<th scope="col">End Date</th>
 					<th scope="col">Priority</th>
 					<th scope="col">Archived</th>
+					<th scope="col">Ticket Count</th>
 				</tr>
 			</thead>
 			<tbody>
 				@foreach (var Project in projects)
 				{
-					number++;
 					<tr>
-						<th scope="row">@number</th>
 						<td>@Project.Name</td>
 						<td>@Project.Created.ToLocalTime()</td>
 						<td>@Project.StartDate.ToLocalTime()</td>
 						<td>@Project.EndDate.ToLocalTime()</td>
 						<td>@Project.Priority</td>
 						<td>@Project.IsArchived</td>
+						<td>@Project.Tickets?.Count()</td>
 					</tr>
 				}
 			</tbody>
@@ -52,27 +66,26 @@
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th scope="col">#</th>
 					<th scope="col">Project Name</th>
 					<th scope="col">Created Date</th>
 					<th scope="col">Start Date</th>
 					<th scope="col">End Date</th>
 					<th scope="col">Priority</th>
 					<th scope="col">Archived</th>
+					<th scope="col">Ticket Count</th>
 				</tr>
 			</thead>
 			<tbody>
 				@foreach (var Project in archivedProjects)
 				{
-					number++;
 					<tr>
-						<th scope="row">@number</th>
 						<td>@Project.Name</td>
 						<td>@Project.Created.ToLocalTime()</td>
 						<td>@Project.StartDate.ToLocalTime()</td>
 						<td>@Project.EndDate.ToLocalTime()</td>
 						<td>@Project.Priority</td>
 						<td>@Project.IsArchived</td>
+						<td>@Project.Tickets?.Count()</td>
 					</tr>
 				}
 			</tbody>
@@ -84,7 +97,7 @@ else
 	<div class="d-flex h-100 flex-column justify-content-center container-xxl">
 		<div class="row">
 			<div class="col-12 col-md-6 d-flex flex-column">
-				<h1></h1>
+				<h1>BugTracker</h1>
 				<div class="subTitle">
 					Lorem ipsum dolor sit amet, consectetur adipiscing elit,
 					sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -104,7 +117,6 @@ else
 			<div class="col-12 col-md-6 order-first order-md-last">
 				<img src="image/undraw_project_complete_lwss.svg" class="img-fluid" />
 			</div>
-
 		</div>
 	</div>
 }
@@ -122,7 +134,18 @@ else
 
 	private IEnumerable<ProjectDTO> archivedProjects = [];
 
-	private int number = 0;
+	private ProjectDTO? newProject { get; set; }
+
+	public TicketDTO? newTicket { get; set; }
+
+	private enum Status
+	{
+		Viewing,
+		EditingTicket,
+		EditingProject
+	}
+
+	private Status status = Status.Viewing;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -132,9 +155,13 @@ else
 
 			if (userInfo != null)
 			{
+				newProject = new();
+
 				projects = await ProjectService.GetAllProjectsAsync(userInfo.CompanyId);
 
 				archivedProjects = await ProjectService.GetArchivedProjects(userInfo.CompanyId);
+
+				newTicket = new();
 			}
 		}
 		catch (Exception ex)
@@ -142,5 +169,54 @@ else
 			Console.WriteLine(ex);
 			throw;
 		}
+	}
+
+	private async Task AddProject(ProjectDTO project)
+	{
+		int companyId = userInfo!.CompanyId;
+
+		try
+		{
+			await ProjectService.AddProjectAsync(project, companyId);
+
+			projects = await ProjectService.GetAllProjectsAsync(userInfo.CompanyId);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+
+		status = Status.Viewing;
+		StateHasChanged();
+	}
+
+	public void CancelAddProject()
+	{
+		status = Status.Viewing;
+	}
+
+	public async Task AddTicket(TicketDTO updatedTicket)
+	{
+
+		int companyId = userInfo!.CompanyId;
+
+		try
+		{
+			await TicketService.AddTicketAsync(updatedTicket, companyId);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+		status = Status.Viewing;
+	}
+
+	private void CancelAddTicket()
+	{
+		status = Status.Viewing;
+
+		newTicket = new();
 	}
 }

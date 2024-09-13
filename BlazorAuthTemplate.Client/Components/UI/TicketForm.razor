@@ -1,41 +1,66 @@
-﻿@using BlazorAuthTemplate.Client.Models
+﻿@using BlazorAuthTemplate.Client.Helpers
+@using BlazorAuthTemplate.Client.Models
 @using BlazorAuthTemplate.Client.Services.Interfaces
 @using static BlazorAuthTemplate.Models.Enums
 
 @inject ITicketService TicketService
+@inject IProjectService ProjectService
 
 <h3>TicketForm</h3>
 
-@if(ticketForm is not null)
+@if (ticketForm is not null)
 {
 	<EditForm Model="ticketForm" OnValidSubmit="HandleSubmit">
-		<div class="mb-2">
-			<label class="form-label">Title</label>
-			<InputText class="form-control" @bind-Value="ticketForm.Title" />
-			<ValidationMessage For="() => ticketForm.Title" />
-		</div>
-		<div class="mb-2">
-			<label class="form-label">Description</label>
-			<InputTextArea class="form-control" @bind-Value="ticketForm.Description" />
-			<ValidationMessage For="() => ticketForm.Description" />
-		</div>
-		<div class="mb-2">
-			<label class="form-label">Priority</label>
-			<InputSelect class="form-select" @bind-Value="ticketForm.Priority">
-			@foreach(var priority in Enum.GetValues(typeof(TicketPriority)).Cast<TicketPriority>())
-			{
-				<option value="@priority">@priority</option>
-			}
-			</InputSelect>
-		</div>
-		<div class="mb-2">
-			<label class="form-label">Type</label>
-			<InputSelect class="form-select" @bind-Value="ticketForm.Type">
-			@foreach(var type in Enum.GetValues(typeof(TicketType)).Cast<TicketType>())
-				{
-					<option value="@type">@type</option>
-				}
-			</InputSelect>
+		<div class="row">
+			<div class="mb-2 col-6">
+				<label class="form-label">Title</label>
+				<InputText class="form-control" @bind-Value="ticketForm.Title" />
+				<ValidationMessage For="() => ticketForm.Title" />
+			</div>
+			<div class="mb-2 col-3">
+				<label class="form-label">Priority</label>
+				<InputSelect class="form-select" @bind-Value="ticketForm.Priority">
+					@foreach (var priority in Enum.GetValues(typeof(TicketPriority)).Cast<TicketPriority>())
+					{
+						<option value="@priority">@priority</option>
+					}
+				</InputSelect>
+			</div>
+			<div class="mb-2 col-3">
+				<label class="form-label">Type</label>
+				<InputSelect class="form-select" @bind-Value="ticketForm.Type">
+					@foreach (var type in Enum.GetValues(typeof(TicketType)).Cast<TicketType>())
+					{
+						<option value="@type">@type</option>
+					}
+				</InputSelect>
+			</div>
+			<div class="mb-2 col-6">
+				<label class="form-label">Description</label>
+				<InputTextArea class="form-control" @bind-Value="ticketForm.Description" style="height:70%" />
+				<ValidationMessage For="() => ticketForm.Description" />
+			</div>
+			<div class="mb-2 col-3">
+				<label class="form-label">Status</label>
+				<InputSelect class="form-select" @bind-Value="ticketForm.Status">
+					@foreach (var status in Enum.GetValues(typeof(TicketStatus)).Cast<TicketStatus>())
+					{
+						<option value="@status">@status</option>
+					}
+				</InputSelect>
+			</div>
+			<div class="mb-2 col-3">
+				<label class="form-label">Projects</label>
+				<InputSelect class="form-select" @bind-Value="ticketForm.ProjectId">
+					@if (projects is not null)
+					{
+						@foreach (var project in projects)
+						{
+							<option value="@project.Id">@project.Name</option>
+						}
+					}
+				</InputSelect>
+			</div>
 		</div>
 		<button class="btn btn-success" type="submit">
 			Save
@@ -49,16 +74,21 @@
 
 
 @code {
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
 	[Parameter, EditorRequired]
 	public TicketDTO? Ticket { get; set; }
 
 	[Parameter, EditorRequired]
-	public EventCallback<ProjectDTO> OnSubmit { get; set; }
+	public EventCallback<TicketDTO> OnSubmit { get; set; }
 
 	[Parameter]
 	public EventCallback OnCancel { get; set; }
 
 	private TicketDTO? ticketForm { get; set; }
+
+	private IEnumerable<ProjectDTO>? projects { get; set; }
 
 	public TicketPriority priority { get; set; }
 
@@ -66,37 +96,38 @@
 
 	private UserInfo? userInfo;
 
-	protected override void OnParametersSet()
+	protected override async Task OnInitializedAsync()
 	{
-		if (Ticket != null)
+		try
 		{
-			ticketForm = new TicketDTO
-				{
-					Title = Ticket.Title,
-					Description = Ticket.Description,
-					Priority = Ticket.Priority,
-					Type = Ticket.Type
-				};
+			userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+			int companyId = userInfo.CompanyId;
+
+			projects = await ProjectService.GetAllProjectsAsync(companyId);
 		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
+
+	protected override async void OnParametersSet()
+	{
+		ticketForm = Ticket;
 	}
 
 	public async Task HandleSubmit()
 	{
-		await OnSubmit.InvokeAsync();
+		ticketForm.SubmitterUserId = userInfo.UserId;
+
+		await OnSubmit.InvokeAsync(ticketForm);
 	}
 
 	public async Task CancelEdit()
 	{
-		if(Ticket != null)
-		{
-			ticketForm = new TicketDTO
-				{
-					Title = Ticket.Title,
-					Description = Ticket.Description,
-					Priority = Ticket.Priority,
-					Type = Ticket.Type
-				};
-		}
+		ticketForm = Ticket;
 
 		await OnCancel.InvokeAsync();
 	}

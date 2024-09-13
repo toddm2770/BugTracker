@@ -1,4 +1,5 @@
-﻿using BlazorAuthTemplate.Client.Models;
+﻿using BlazorAuthTemplate.Client;
+using BlazorAuthTemplate.Client.Models;
 using BlazorAuthTemplate.Client.Services.Interfaces;
 using BlazorAuthTemplate.Models;
 using BlazorAuthTemplate.Services.Interfaces;
@@ -7,6 +8,7 @@ namespace BlazorAuthTemplate.Services
 {
 	public class TicketService : ITicketService
 	{
+
 		private readonly ITicketRespository _repository;
 
 		public TicketService(ITicketRespository repository)
@@ -23,12 +25,11 @@ namespace BlazorAuthTemplate.Services
 				ProjectId = ticket.ProjectId,
 				Priority = ticket.Priority,
 				Created = DateTimeOffset.Now,
-				IsArchived = ticket.IsArchived,
-				IsArchivedByProject = ticket.IsArchivedByProject,
+				IsArchived = false,
+				IsArchivedByProject = false,
+				SubmitterUserId = ticket.SubmitterUserId,
 				Type = ticket.Type,
 				Status = ticket.Status,
-				SubmitterUserId = ticket.SubmitterUserId,
-				DeveloperUserId = ticket.DeveloperUserId
 			};
 
 			newTicket = await _repository.AddTicketAsync(newTicket, companyId);
@@ -36,24 +37,28 @@ namespace BlazorAuthTemplate.Services
 			return newTicket.ToDTO();
 		}
 
-		public Task ArchiveTicketAsync(int ticketId, int companyId)
+		public async Task ArchiveTicketAsync(int ticketId, int companyId)
 		{
-			throw new NotImplementedException();
+			await _repository.ArchiveTicketAsync(ticketId, companyId);
 		}
 
-		public Task<IEnumerable<TicketDTO>> GetAllTicketsAsync(int companyId)
+		public async Task<IEnumerable<TicketDTO>> GetAllTicketsAsync(int companyId)
 		{
-			throw new NotImplementedException();
+			IEnumerable<Ticket> tickets = await _repository.GetAllTicketsAsync(companyId);
+
+			return tickets.Select(t => t.ToDTO());
 		}
 
-		public Task<TicketDTO?> GetTicketByIdAsync(int ticketId, int companyId)
+		public async Task<TicketDTO?> GetTicketByIdAsync(int ticketId, int companyId)
 		{
-			throw new NotImplementedException();
+			Ticket? ticket = await _repository.GetTicketByIdAsync(ticketId, companyId);
+
+			return ticket?.ToDTO();
 		}
 
-		public Task RestoreTicketAsync(int ticketId, int companyId)
+		public async Task RestoreTicketAsync(int ticketId, int companyId)
 		{
-			throw new NotImplementedException();
+			await _repository.RestoreTicketAsync(ticketId, companyId);
 		}
 
 		public async Task UpdateTicketAsync(TicketDTO ticket, int companyId, string userId)

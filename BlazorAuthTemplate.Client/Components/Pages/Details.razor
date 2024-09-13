@@ -6,7 +6,7 @@
 @using BlazorAuthTemplate.Client.Services.Interfaces
 @using BlazorAuthTemplate.Models
 
-@rendermode InteractiveAuto
+@rendermode InteractiveServer
 
 @inject IProjectService ProjectService
 
@@ -64,9 +64,14 @@
 				</button>
 			}
 
+
 			@if(status == Status.Viewing)
 			{
-				<ProjectDetails Project="SelectedProject" />
+				@if(SelectedProject is not null)
+				{
+					<ProjectDetails Project="SelectedProject" />
+				}
+
 			}
 
 			@if(status == Status.Editing && SelectedProject is not null)

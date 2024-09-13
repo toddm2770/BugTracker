@@ -1,8 +1,11 @@
-﻿@using BlazorAuthTemplate.Client.Models
+﻿@using BlazorAuthTemplate.Client.Helpers
+@using BlazorAuthTemplate.Client.Models
 @using BlazorAuthTemplate.Client.Services.Interfaces
 @using static BlazorAuthTemplate.Models.Enums
 
 @inject IProjectService ProjectService
+
+<h3>Project Form</h3>
 
 @if(projectForm is not null)
 {
@@ -44,7 +47,7 @@
 			Save
 		</button>
 
-		<button @onclick="CancelEdit" class="btn btn-warning mt-1">
+		<button @onclick="() => CancelEdit()" class="btn btn-warning mt-1">
 			Cancel
 		</button>
 
@@ -55,6 +58,9 @@
 
 
 @code {
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
 
 	[Parameter, EditorRequired]
 	public ProjectDTO? Project { get; set; }
@@ -69,18 +75,21 @@
 
 	public ProjectPriority priority { get; set; }
 
+	private UserInfo? userInfo;
+
+	protected override async Task OnInitializedAsync()
+	{
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+		int companyId = userInfo.CompanyId;
+
+	}
+
 	protected override void OnParametersSet()
 	{
 		if (Project != null)
 		{
-			projectForm = new ProjectDTO
-			{
-				Name = Project.Name,
-				Description = Project.Description,
-				Priority = Project.Priority,
-				StartDate = Project.StartDate,
-				EndDate = Project.EndDate
-			};
+			projectForm = Project;
 		}
 	}
 
@@ -91,15 +100,8 @@
 
 	public async Task CancelEdit()
 	{
-		projectForm = new ProjectDTO
-			{
-				Name = Project.Name,
-				Description = Project.Description,
-				Priority = Project.Priority,
-				StartDate = Project.StartDate,
-				EndDate = Project.EndDate
-			};
+		projectForm = Project;
 
-			await OnCancel.InvokeAsync();
+		await OnCancel.InvokeAsync();
 	}
 }
