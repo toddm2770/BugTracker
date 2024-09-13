@@ -94,6 +94,7 @@ namespace BlazorAuthTemplate.Controllers
 			try
 			{
 				await _projectService.ArchiveProjectAsync(projectId, _companyId);
+
 				return Ok();
 			}
 			catch (Exception ex)
@@ -109,6 +110,7 @@ namespace BlazorAuthTemplate.Controllers
 			try
 			{
 				await _projectService.RestoreProjectAsync(projectId, _companyId);
+
 				return Ok();
 			}
 			catch (Exception ex)
@@ -124,6 +126,7 @@ namespace BlazorAuthTemplate.Controllers
 			try
 			{
 				await _projectService.UpdateProjectAsync(project, _companyId);
+
 				return Ok();
 			}
 			catch (Exception ex)
