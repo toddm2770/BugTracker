@@ -6,8 +6,9 @@
 @using BlazorAuthTemplate.Client.Services.Interfaces
 @using BlazorAuthTemplate.Models
 
-@rendermode InteractiveWebAssembly
+@rendermode InteractiveAuto
 
+@inject IJSRuntime JS
 @inject IProjectService ProjectService
 
 <div class="container mt-3">
@@ -221,8 +222,10 @@
 		status = Status.Viewing;
 	}
 
-	private void CancelEdit()
+	private async Task CancelEdit()
 	{
+		await JS.InvokeVoidAsync("eval", "$('#myModal').modal('hide')");
+
 		status = Status.Viewing;
 	}
 }

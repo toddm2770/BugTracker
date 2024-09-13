@@ -56,7 +56,15 @@
 					{
 						@foreach (var project in projects)
 						{
-							<option value="@project.Id">@project.Name</option>
+							<option value="@project.Id">@project.Name + " active"</option>
+						}
+					}
+
+					@if(archivedProjects is not null)
+					{
+						@foreach (var project in archivedProjects)
+						{
+							<option value="@project.Id">@project.Name + " archived"</option>
 						}
 					}
 				</InputSelect>
@@ -65,8 +73,8 @@
 		<button class="btn btn-success" type="submit">
 			Save
 		</button>
-		<button class="btn btn-danger" @onclick="() => CancelEdit()">
-			Cancel
+		<button class="btn btn-warning" @onclick="() => CancelEdit()">
+			Reset
 		</button>
 	</EditForm>
 }
@@ -86,15 +94,20 @@
 	[Parameter]
 	public EventCallback OnCancel { get; set; }
 
-	private TicketDTO? ticketForm { get; set; }
+	private TicketDTO? ticketForm;
+
+	private TicketDTO? clonedTicket;
 
 	private IEnumerable<ProjectDTO>? projects { get; set; }
+
+	private IEnumerable<ProjectDTO>? archivedProjects { get; set; }
 
 	public TicketPriority priority { get; set; }
 
 	public TicketType type { get; set; }
 
 	private UserInfo? userInfo;
+
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -105,6 +118,14 @@
 			int companyId = userInfo.CompanyId;
 
 			projects = await ProjectService.GetAllProjectsAsync(companyId);
+
+			archivedProjects = await ProjectService.GetArchivedProjects(companyId);
+
+			if (Ticket is not null)
+			{
+				clonedTicket = CloneTicket(Ticket);
+				ticketForm = CloneTicket(Ticket);
+			}
 		}
 		catch (Exception ex)
 		{
@@ -113,23 +134,57 @@
 		}
 	}
 
-	protected override async void OnParametersSet()
+	protected override void OnParametersSet()
 	{
-		ticketForm = Ticket;
+		if(Ticket is not null)
+		{
+			clonedTicket = CloneTicket(Ticket);
+			ticketForm = CloneTicket(Ticket);
+		}
 	}
 
 	public async Task HandleSubmit()
 	{
-		ticketForm.SubmitterUserId = userInfo.UserId;
+		ticketForm!.SubmitterUserId = userInfo!.UserId;
 
 		await OnSubmit.InvokeAsync(ticketForm);
 	}
 
 	public async Task CancelEdit()
 	{
-		ticketForm = Ticket;
+		if(clonedTicket is not null)
+		{
+			ticketForm = CloneTicket(clonedTicket);
+		}
+		else
+		{
+			ticketForm = new TicketDTO();
+		}
 
 		await OnCancel.InvokeAsync();
+
+		StateHasChanged();
+	}
+
+	private TicketDTO CloneTicket(TicketDTO ticket)
+	{
+		return new TicketDTO
+			{
+				Title = ticket.Title,
+				Priority = ticket.Priority,
+				Type = ticket.Type,
+				Description = ticket.Description,
+				Status = ticket.Status,
+				ProjectId = ticket.ProjectId,
+				SubmitterUserId = ticket.SubmitterUserId,
+				Project = ticket.Project,
+				Created = ticket.Created,
+				Updated = ticket.Updated,
+				IsArchived = ticket.IsArchived,
+				IsArchivedByProject = ticket.IsArchivedByProject,
+				DeveloperUser = ticket.DeveloperUser,
+				SubmitterUser = ticket.SubmitterUser
+			};
 	}
 }
 

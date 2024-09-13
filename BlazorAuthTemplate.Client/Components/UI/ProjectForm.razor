@@ -7,7 +7,7 @@
 
 <h3>Project Form</h3>
 
-@if(projectForm is not null)
+@if (projectForm is not null)
 {
 	<EditForm Model="projectForm" OnValidSubmit="HandleSubmit">
 		<DataAnnotationsValidator />
@@ -48,7 +48,7 @@
 		</button>
 
 		<button @onclick="() => CancelEdit()" class="btn btn-warning mt-1">
-			Cancel
+			Reset
 		</button>
 
 	</EditForm>
@@ -73,6 +73,8 @@
 
 	private ProjectDTO? projectForm;
 
+	private ProjectDTO? clonedProject;
+
 	public ProjectPriority priority { get; set; }
 
 	private UserInfo? userInfo;
@@ -83,13 +85,21 @@
 
 		int companyId = userInfo.CompanyId;
 
+		if (Project != null)
+		{
+			projectForm = CloneProject(Project);
+
+			clonedProject = CloneProject(Project);
+		}
 	}
 
 	protected override void OnParametersSet()
 	{
 		if (Project != null)
 		{
-			projectForm = Project;
+			projectForm = CloneProject(Project);
+
+			clonedProject = CloneProject(Project);
 		}
 	}
 
@@ -103,5 +113,18 @@
 		projectForm = Project;
 
 		await OnCancel.InvokeAsync();
+	}
+
+	private ProjectDTO CloneProject(ProjectDTO project)
+	{
+		return new ProjectDTO
+			{
+				Id = Project.Id,
+				Name = Project.Name,
+				Description = Project.Description,
+				Priority = Project.Priority,
+				StartDate = Project.StartDate,
+				EndDate = Project.EndDate
+			};
 	}
 }

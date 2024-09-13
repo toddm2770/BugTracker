@@ -16,23 +16,35 @@
 	<div class="container mt-3">
 		<h1>Published Projects</h1>
 
-		<button class="btn btn-success" @onclick="() => status = Status.EditingProject">
-			Add New Project
-		</button>
+		<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProject">Add Project</button>
 
-		<button class="btn btn-warning" @onclick="() => status = Status.EditingTicket">
-			Add New Ticket
-		</button>
+		<button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#addTicket">Add Ticket</button>
 
-		@if(status == Status.EditingProject)
-		{
-			<ProjectForm Project="newProject" OnSubmit="AddProject" OnCancel="CancelAddProject" />
-		}
+		<div class="modal fade" id="addProject" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<ProjectForm Project="newProject" OnSubmit="AddProject" OnCancel="CancelAddProject" />
+					</div>
+				</div>
+			</div>
+		</div>
 
-		@if (status == Status.EditingTicket)
-		{
-			<TicketForm Ticket="newTicket" OnSubmit="AddTicket" OnCancel="CancelAddTicket" />
-		}
+		<div class="modal fade" id="addTicket" tabindex="-1" aria-labelledby="addTicketLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<TicketForm Ticket="newTicket" OnSubmit="AddTicket" OnCancel="CancelAddTicket" />
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<table class="table table-striped">
 			<thead>
@@ -121,7 +133,6 @@ else
 	</div>
 }
 
-
 @code {
 	[CascadingParameter]
 	private Task<AuthenticationState>? AuthStateTask { get; set; }
@@ -195,6 +206,10 @@ else
 	public void CancelAddProject()
 	{
 		status = Status.Viewing;
+
+		newProject = new();
+
+		StateHasChanged();
 	}
 
 	public async Task AddTicket(TicketDTO updatedTicket)
@@ -211,14 +226,15 @@ else
 			Console.WriteLine(ex);
 			throw;
 		}
-
-		status = Status.Viewing;
 	}
 
 	private void CancelAddTicket()
 	{
 		status = Status.Viewing;
 
-		newTicket = new();
+		newTicket = new TicketDTO();
+
+		StateHasChanged();
 	}
 }
+

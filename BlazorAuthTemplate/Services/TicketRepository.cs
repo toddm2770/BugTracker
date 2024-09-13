@@ -46,7 +46,6 @@ namespace BlazorAuthTemplate.Services
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
 			List<Ticket> tickets = await context.Tickets
-												.Where(t => t.IsArchived == false)
 												.ToListAsync();
 			return tickets;
 		}
