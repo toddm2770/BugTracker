@@ -152,14 +152,9 @@
 
 	public async Task CancelEdit()
 	{
-		if(clonedTicket is not null)
-		{
-			ticketForm = CloneTicket(clonedTicket);
-		}
-		else
-		{
+			ticketForm = clonedTicket;
+
 			ticketForm = new TicketDTO();
-		}
 
 		await OnCancel.InvokeAsync();
 

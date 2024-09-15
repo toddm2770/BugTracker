@@ -1,4 +1,5 @@
-﻿using BlazorAuthTemplate.Models;
+﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Models;
 
 namespace BlazorAuthTemplate.Services.Interfaces
 {
@@ -15,5 +16,18 @@ namespace BlazorAuthTemplate.Services.Interfaces
 		Task ArchiveTicketAsync(int ticketId, int companyId);
 
 		Task RestoreTicketAsync(int ticketId, int companyId);
+
+
+		//Ticket Comments
+
+		Task<IEnumerable<TicketComment>> GetTicketCommentsAsync(int ticketId, int companyId);
+
+		Task<TicketComment?> GetCommentByIdAsync(int commentId, int companyId);
+
+		Task<TicketComment> AddCommentAsync(TicketComment comment, int companyId);
+
+		Task DeleteCommentAsync(int commentId, int companyId);
+
+		Task UpdateCommentAsync(TicketComment comment, int companyId, string userId);
 	}
 }

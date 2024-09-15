@@ -15,5 +15,19 @@ namespace BlazorAuthTemplate.Client.Services.Interfaces
 		Task ArchiveTicketAsync(int ticketId, int companyId);
 
 		Task RestoreTicketAsync(int ticketId, int companyId);
+
+
+		//Ticket Comments
+		Task<IEnumerable<TicketCommentDTO>> GetTicketCommentsAsync(int ticketId, int companyId);
+
+		Task<TicketCommentDTO?> GetCommentByIdAsync(int commentId, int companyId);
+
+		Task<TicketCommentDTO> AddCommentAsync(TicketCommentDTO comment, int companyId);
+
+		Task DeleteCommentAsync(int commentId, int companyId);
+
+		Task UpdateCommentAsync(TicketCommentDTO comment, int companyId, string userId);
+
+
 	}
 }

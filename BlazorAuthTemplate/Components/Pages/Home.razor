@@ -13,95 +13,91 @@
 
 @if (userInfo != null)
 {
+
+
 	<div class="container mt-3">
-		<h1>Published Projects</h1>
+		<div class="hstack justify-content-end">
+			<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProject">Add Project</button>
+			<button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#addTicket">Add Ticket</button>
+			<h3 class="ms-2">Welcome, @userInfo.FullName</h3>
+		</div>
+		<div class="row mt-2">
+			<div class="col-12 col-md-4">
+				<h2>Company Name Placeholder</h2>
+				<img src="/image/DefaultCompanyImage.jpg" style="width: 400px; height: auto" />
+				<h5 class="mt-3">Company description placeholder Company description placeholder Company description placeholder Company description placeholder Company description placeholder Company description placeholder </h5>
+			</div>
+			<div class="col-12 col-md-8">
 
-		<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProject">Add Project</button>
-
-		<button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#addTicket">Add Ticket</button>
-
-		<div class="modal fade" id="addProject" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div class="modal-body">
-						<ProjectForm Project="newProject" OnSubmit="AddProject" OnCancel="CancelAddProject" />
+				<h3 class="text-end">Published Projects</h3>
+				<div class="modal fade" id="addProject" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<ProjectForm Project="newProject" OnSubmit="AddProject" OnCancel="CancelAddProject" />
+							</div>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
 
-		<div class="modal fade" id="addTicket" tabindex="-1" aria-labelledby="addTicketLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div class="modal-body">
-						<TicketForm Ticket="newTicket" OnSubmit="AddTicket" OnCancel="CancelAddTicket" />
+				<div class="modal fade" id="addTicket" tabindex="-1" aria-labelledby="addTicketLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<TicketForm Ticket="newTicket" OnSubmit="AddTicket" OnCancel="CancelAddTicket" />
+							</div>
+						</div>
 					</div>
 				</div>
+
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th scope="col">Project Name</th>
+							<th scope="col" class="text-end">Priority</th>
+							<th scope="col" class="text-end">Ticket Count</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var Project in projects)
+						{
+							<tr>
+								<td>@Project.Name</td>
+								<td class="text-end">@Project.Priority</td>
+								<td class="text-end">@Project.Tickets?.Count()</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+
+				<h3 class="mt-3">Archived Projects</h3>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th scope="col">Project Name</th>
+							<th scope="col" class="text-end">Priority</th>
+							<th scope="col" class="text-end">Ticket Count</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var Project in archivedProjects)
+						{
+							<tr>
+								<td>@Project.Name</td>
+								<td class="text-end">@Project.Priority</td>
+								<td class="text-end">@Project.Tickets?.Count()</td>
+							</tr>
+						}
+					</tbody>
+				</table>
 			</div>
 		</div>
-
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th scope="col">Project Name</th>
-					<th scope="col">Created Date</th>
-					<th scope="col">Start Date</th>
-					<th scope="col">End Date</th>
-					<th scope="col">Priority</th>
-					<th scope="col">Archived</th>
-					<th scope="col">Ticket Count</th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var Project in projects)
-				{
-					<tr>
-						<td>@Project.Name</td>
-						<td>@Project.Created.ToLocalTime()</td>
-						<td>@Project.StartDate.ToLocalTime()</td>
-						<td>@Project.EndDate.ToLocalTime()</td>
-						<td>@Project.Priority</td>
-						<td>@Project.IsArchived</td>
-						<td>@Project.Tickets?.Count()</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-
-		<h1 class="mt-3">Archived Projects</h1>
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th scope="col">Project Name</th>
-					<th scope="col">Created Date</th>
-					<th scope="col">Start Date</th>
-					<th scope="col">End Date</th>
-					<th scope="col">Priority</th>
-					<th scope="col">Archived</th>
-					<th scope="col">Ticket Count</th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var Project in archivedProjects)
-				{
-					<tr>
-						<td>@Project.Name</td>
-						<td>@Project.Created.ToLocalTime()</td>
-						<td>@Project.StartDate.ToLocalTime()</td>
-						<td>@Project.EndDate.ToLocalTime()</td>
-						<td>@Project.Priority</td>
-						<td>@Project.IsArchived</td>
-						<td>@Project.Tickets?.Count()</td>
-					</tr>
-				}
-			</tbody>
-		</table>
 	</div>
 }
 else

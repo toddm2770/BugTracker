@@ -110,7 +110,7 @@
 
 	public async Task CancelEdit()
 	{
-		projectForm = Project;
+		projectForm = clonedProject;
 
 		await OnCancel.InvokeAsync();
 	}

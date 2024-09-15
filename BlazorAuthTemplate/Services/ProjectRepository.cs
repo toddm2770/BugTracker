@@ -34,7 +34,8 @@ namespace BlazorAuthTemplate.Services
 		{
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
-			Project? project = await context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+			Project? project = await context.Projects.Include(p => p.Tickets)
+											.FirstOrDefaultAsync(p => p.Id == projectId);
 
 			if (project != null)
 			{
@@ -86,7 +87,8 @@ namespace BlazorAuthTemplate.Services
 		{
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
-			Project? project = await context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+			Project? project = await context.Projects.Include(p => p.Tickets)
+													 .FirstOrDefaultAsync(p => p.Id == projectId);
 
 			foreach(var ticket in project.Tickets)
 			{
