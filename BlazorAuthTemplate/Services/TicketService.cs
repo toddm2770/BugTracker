@@ -106,7 +106,7 @@ namespace BlazorAuthTemplate.Services
 			{
 				updatedComment.Content = commentDTO.Content;
 
-				await _repository.UpdateCommentAsync(updatedComment.ToDTO(), companyId, userId);
+				await _repository.UpdateCommentAsync(updatedComment, companyId, userId);
 			}
 		}
 

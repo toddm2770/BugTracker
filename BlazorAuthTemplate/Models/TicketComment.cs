@@ -38,7 +38,7 @@ namespace BlazorAuthTemplate.Models
                     Content = ticketComment.Content,
                     Created = ticketComment.Created,
                     TicketId = ticketComment.TicketId,
-                    User = ticketComment.User?.ToDTO(),
+                    User = ticketComment.User!.ToDTO(),
                     UserId = ticketComment.User?.Id
                 };
         }

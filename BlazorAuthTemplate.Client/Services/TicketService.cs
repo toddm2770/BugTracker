@@ -12,6 +12,12 @@ namespace BlazorAuthTemplate.Client.Services
 		{
 			_httpClient = httpClient;
 		}
+
+		public Task<TicketCommentDTO> AddCommentAsync(TicketCommentDTO comment, int companyId)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task<TicketDTO> AddTicketAsync(TicketDTO ticket, int companyId)
 		{
 			try
@@ -43,6 +49,11 @@ namespace BlazorAuthTemplate.Client.Services
 			}
 		}
 
+		public Task DeleteCommentAsync(int commentId, int companyId)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task<IEnumerable<TicketDTO>> GetAllTicketsAsync(int companyId)
 		{
 			try
@@ -58,6 +69,11 @@ namespace BlazorAuthTemplate.Client.Services
 			}
 		}
 
+		public Task<TicketCommentDTO?> GetCommentByIdAsync(int commentId, int companyId)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task<TicketDTO?> GetTicketByIdAsync(int ticketId, int companyId)
 		{
 			try
@@ -69,6 +85,11 @@ namespace BlazorAuthTemplate.Client.Services
 				Console.WriteLine(ex);
 				throw;
 			}
+		}
+
+		public Task<IEnumerable<TicketCommentDTO>> GetTicketCommentsAsync(int ticketId, int companyId)
+		{
+			throw new NotImplementedException();
 		}
 
 		public async Task RestoreTicketAsync(int ticketId, int companyId)
@@ -83,6 +104,11 @@ namespace BlazorAuthTemplate.Client.Services
 				Console.WriteLine(ex);
 				throw;
 			}
+		}
+
+		public Task UpdateCommentAsync(TicketCommentDTO comment, int companyId, string userId)
+		{
+			throw new NotImplementedException();
 		}
 
 		public async Task UpdateTicketAsync(TicketDTO ticket, int companyId, string userId)

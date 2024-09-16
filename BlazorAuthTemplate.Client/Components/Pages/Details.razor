@@ -6,7 +6,7 @@
 @using BlazorAuthTemplate.Client.Services.Interfaces
 @using BlazorAuthTemplate.Models
 
-@rendermode InteractiveAuto
+@rendermode InteractiveServer
 
 @inject IJSRuntime JS
 @inject IProjectService ProjectService
@@ -24,9 +24,7 @@
 				<h4 class="mt-3">Published Projects:</h4>
 				@foreach (var Project in projects)
 				{
-					<h5>
-						@Project.Name <button class="btn btn-small btn-success" @onclick="() => SelectProject(Project)"><i class="bi bi-eye"></i></button>
-					</h5>
+					<button class="btn btn-link text-start" @onclick="() => SelectProject(Project)"><h4>@Project.Name</h4></button>
 					<hr />
 				}
 			}
@@ -36,9 +34,7 @@
 				<h4>Archived Projects:</h4>
 				@foreach (var Project in archivedProjects)
 				{
-					<h5>
-						@Project.Name <button class="btn btn-small btn-success" @onclick="() => SelectProject(Project)"><i class="bi bi-eye"></i></button>
-					</h5>
+					<button class="btn btn-link text-start" @onclick="() => SelectProject(Project)"><h4>@Project.Name</h4></button>
 					<hr />
 				}
 			}
