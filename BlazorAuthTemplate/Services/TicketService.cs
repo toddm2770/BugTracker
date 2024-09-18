@@ -24,7 +24,7 @@ namespace BlazorAuthTemplate.Services
 			{
 				Id = comment.Id,
 				Content = comment.Content,
-				Created = comment.Created,
+				Created = DateTimeOffset.Now,
 				TicketId = comment.TicketId,
 				UserId = comment.UserId
 			};
@@ -123,6 +123,34 @@ namespace BlazorAuthTemplate.Services
 			originalTicket.Type = ticket.Type;
 
 			await _repository.UpdateTicketAsync(originalTicket, companyId, userId);
+		}
+
+		public async Task<TicketAttachmentDTO> AddTicketAttachment(TicketAttachmentDTO attachment, byte[] uploadData, string contentType, int companyId)
+		{
+			FileUpload file = new()
+			{
+				Type = contentType,
+				Data = uploadData,
+			};
+
+			TicketAttachment dbAttachment = new()
+			{
+				TicketId = attachment.TicketId,
+				Description = attachment.Description,
+				FileName = attachment.FileName,
+				FileUpload = file,
+				Created = DateTimeOffset.Now,
+				UserId = attachment.UserId
+			};
+
+			dbAttachment = await _repository.AddTicketAttachment(dbAttachment, companyId);
+
+			return dbAttachment.ToDTO();
+		}
+
+		public async Task DeleteTicketAttachment(int attachmentId, int companyId)
+		{
+			await _repository.DeleteTicketAttachment(attachmentId, companyId);
 		}
 	}
 }

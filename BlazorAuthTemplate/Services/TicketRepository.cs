@@ -71,6 +71,8 @@ namespace BlazorAuthTemplate.Services
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
 			List<Ticket> tickets = await context.Tickets
+												.Include(t => t.TicketComments)
+												.ThenInclude(t => t.User)
 												.ToListAsync();
 			return tickets;
 		}
@@ -79,7 +81,8 @@ namespace BlazorAuthTemplate.Services
 		{
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
-			TicketComment? comment = await context.TicketComments.FirstOrDefaultAsync(t => t.Id == commentId);
+			TicketComment? comment = await context.TicketComments.Include(t => t.User)
+																 .FirstOrDefaultAsync(t => t.Id == commentId);
 
 			return comment;
 		}
@@ -99,6 +102,7 @@ namespace BlazorAuthTemplate.Services
 
 			List<TicketComment> comments = await context.TicketComments
 														.Where(t => t.TicketId == ticketId)
+														.Include(t => t.User)
 														.ToListAsync();
 			return comments;
 		}
@@ -135,6 +139,45 @@ namespace BlazorAuthTemplate.Services
 			await context.SaveChangesAsync();
 
 			return ticket;
+		}
+
+		public async Task<TicketAttachment> AddTicketAttachment(TicketAttachment attachment, int companyId)
+		{
+			using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+			// make sure the ticket exists and belongs to this company
+			var ticket = await context.Tickets
+									  .FirstOrDefaultAsync(t => t.Id == attachment.TicketId && t.Project!.CompanyId == companyId);
+
+			// save it if it does
+			if (ticket is not null)
+			{
+				attachment.Created = DateTimeOffset.Now;
+				context.TicketAttachments.Add(attachment);
+				await context.SaveChangesAsync();
+
+				return attachment;
+			}
+			else
+			{
+				throw new ArgumentException("Ticket not found");
+			}
+		}
+
+		public async Task DeleteTicketAttachment(int attachmentId, int companyId)
+		{
+			using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+			var attachment = await context.TicketAttachments
+										  .Include(a => a.FileUpload)
+										  .FirstOrDefaultAsync(a => a.Id == attachmentId && a.Ticket!.Project!.CompanyId == companyId);
+
+			if (attachment is not null)
+			{
+				context.Remove(attachment);
+				context.Remove(attachment.FileUpload!);
+				await context.SaveChangesAsync();
+			}
 		}
 	}
 }

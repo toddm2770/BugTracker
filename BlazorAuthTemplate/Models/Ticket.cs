@@ -54,9 +54,9 @@ namespace BlazorAuthTemplate.Models
 
 		public virtual ApplicationUser? DeveloperUser { get; set; }
 
-        public virtual ICollection<TicketComment>? TicketComments { get; set; } = [];
+        public virtual ICollection<TicketComment> TicketComments { get; set; } = [];
 
-        public virtual ICollection<TicketAttachment>? TicketAttachments { get; set; } = [];
+        public virtual ICollection<TicketAttachment> TicketAttachments { get; set; } = [];
     }
 
     public static class TicketExtension

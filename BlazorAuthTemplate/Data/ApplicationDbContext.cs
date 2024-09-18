@@ -6,7 +6,7 @@ namespace BlazorAuthTemplate.Data
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-        public DbSet<FileUpload> Images { get; set; }
+        public DbSet<FileUpload> Uploads { get; set; }
         
         public override DbSet<ApplicationUser> Users { get; set; }
 

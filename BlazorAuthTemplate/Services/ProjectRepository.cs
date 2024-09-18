@@ -56,6 +56,7 @@ namespace BlazorAuthTemplate.Services
 												  .Where(p => p.CompanyId == companyId && p.IsArchived == false)
 												  .Include(p => p.Tickets)
 												  .Include(p => p.Members)
+												  .Include(p => p.Company)
 												  .ToListAsync();
 			return projects;
 		}
@@ -79,6 +80,7 @@ namespace BlazorAuthTemplate.Services
 			Project? project = await context.Projects
 											.Include(p => p.Tickets)
 											.Include(p => p.Members)
+											.Include(p => p.Company)
 											.FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == companyId);
 			return project;
 		}

@@ -82,12 +82,12 @@
             try
             {
                 FileUpload newImage = await UploadHelper.GetImageUploadAsync(Input.ProfilePicture);
-                await DBContext.Images.AddAsync(newImage);
+                await DBContext.Uploads.AddAsync(newImage);
 
-                FileUpload? oldImage = await DBContext.Images.FirstOrDefaultAsync(i => i.Id == user.ImageId);
+                FileUpload? oldImage = await DBContext.Uploads.FirstOrDefaultAsync(i => i.Id == user.ImageId);
                 if (oldImage != null)
                 {
-                    DBContext.Images.Remove(oldImage);
+                    DBContext.Uploads.Remove(oldImage);
                 }
 
                 user.Image = newImage;

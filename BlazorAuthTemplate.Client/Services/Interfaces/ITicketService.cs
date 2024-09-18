@@ -29,5 +29,8 @@ namespace BlazorAuthTemplate.Client.Services.Interfaces
 		Task UpdateCommentAsync(TicketCommentDTO comment, int companyId, string userId);
 
 
+		//Ticket Attachments
+		Task<TicketAttachmentDTO> AddTicketAttachment(TicketAttachmentDTO attachment, byte[] uploadData, string contentType, int companyId);
+		Task DeleteTicketAttachment(int attachmentId, int companyId);
 	}
 }

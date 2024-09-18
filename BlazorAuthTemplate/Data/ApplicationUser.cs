@@ -1,3 +1,4 @@
+using BlazorAuthTemplate.Client;
 using BlazorAuthTemplate.Client.Models;
 using BlazorAuthTemplate.Models;
 using Microsoft.AspNetCore.Identity;
@@ -5,9 +6,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BlazorAuthTemplate.Data
 {
-    // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
+
         [Required]
         public string? FirstName { get; set; }
 
@@ -25,6 +26,8 @@ namespace BlazorAuthTemplate.Data
         public virtual Company? Company { get; set; }
 
         ICollection<Project>? Projects { get; set; }
+
+        public virtual ICollection<TicketComment> Comments { get; set; } = new HashSet<TicketComment>();
     }
 
 	public static class ApplicationUserExtension
@@ -35,9 +38,9 @@ namespace BlazorAuthTemplate.Data
 			{
 				FirstName = applicationUser.FirstName,
 				LastName = applicationUser.LastName,
-				FullName = applicationUser.FullName,
 				ImageUrl = applicationUser.Image?.Extension,
-				Email = applicationUser.Email
+				Email = applicationUser.Email,
+                CompanyId = applicationUser.CompanyId
 			};
 		}
 	}

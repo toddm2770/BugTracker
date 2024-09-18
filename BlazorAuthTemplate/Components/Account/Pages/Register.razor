@@ -110,7 +110,7 @@
                 FileUpload image = await UploadHelper.GetImageUploadAsync(Input.ProfiilePicture);
 
                 // Save the image first
-                await DbContext.Images.AddAsync(image);
+                await DbContext.Uploads.AddAsync(image);
                 // Then save the user with image
                 user.ImageId = image.Id;
                 DbContext.Users.Update(user);

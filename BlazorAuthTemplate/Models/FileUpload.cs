@@ -11,5 +11,8 @@ namespace BlazorAuthTemplate.Models
 
 		[Required]
 		public string? Extension { get; set; }
+
+		[Required]
+		public string? Type { get; set; }
 	}
 }

@@ -6,17 +6,18 @@
 @inject NavigationManager Nav
 
 <div id="comments">
-	<div class="d-flex">
-		<h2 class="h1 py-lg-1 py-xl-3 text-nowrap me-auto">
-			@(Comments.Count() == 1 ? "1 comment" : $"{Comments.Count()} comments")
-		</h2>
+	<div class="row">
+		<div class="col-12">
+			<h2 class="h1 py-lg-1 py-xl-3 text-nowrap me-auto">
+				@(Comments.Count() == 1 ? "1 comment" : $"{Comments.Count()} comments")
+			</h2>
+		</div>
 		<div>
 			<button class="btn btn-link px-0" data-bs-toggle="collapse" data-bs-target="#newCommentForm">
 				Leave a comment
 			</button>
 			<a class="btn btn-link px-0" href="@Nav.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> {["ReturnUrl"] = Nav.Uri})">
 				Login to comment
-				<i class="ai-chevron-right fs-lg ms-1"></i>
 			</a>
 		</div>
 
@@ -24,19 +25,20 @@
 			<TicketCommentForm Comment="newComment" OnSubmit="HandleAddComment" />
 		</div>
 
-
 		@if (Comments.Count() == 0)
 		{
 			<div class="text-center py-5 text-muted fs-4">
 				No comments yet!
 			</div>
-		}else
+		}
+		else
 		{
-			foreach(TicketCommentDTO comment in Comments.OrderByDescending(c => c.Created))
-			{
-				<TicketCommentListItem OnEdit="HandleEditComment" OnDelete="HandleDeleteComment" Comment="comment" Editable="comment.UserId == userInfo?.UserId" />
-				<p>@comment.Content - @comment.User.FullName @comment.Created</p>
-			}
+			<div class="vstack gap-2">
+				@foreach (TicketCommentDTO comment in Comments.OrderByDescending(c => c.Created))
+				{
+					<TicketCommentListItem OnEdit="HandleEditComment" OnDelete="HandleDeleteComment" Comment="comment" />
+				}
+			</div>
 		}
 
 	</div>
@@ -53,7 +55,7 @@
 	public int CompanyId { get; set; }
 
 	[Parameter]
-	public IEnumerable<TicketCommentDTO>? Comments { get; set; }
+	public IEnumerable<TicketCommentDTO>? Comments { get; set; } = new List<TicketCommentDTO>();
 
 	[CascadingParameter]
 	public Task<AuthenticationState>? AuthStateTask { get; set; }
@@ -62,9 +64,16 @@
 
 	private TicketCommentDTO newComment = new TicketCommentDTO();
 
+
+	protected override async Task OnInitializedAsync()
+	{
+		Comments = await TicketService.GetTicketCommentsAsync(TicketId, CompanyId);
+	}
+
 	protected override async Task OnParametersSetAsync()
 	{
 		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+		Comments = await TicketService.GetTicketCommentsAsync(TicketId, CompanyId);
 	}
 
 	private async Task HandleAddComment(TicketCommentDTO comment)
@@ -90,7 +99,7 @@
 	{
 		try
 		{
-			if(comment.UserId == userInfo!.UserId || userInfo.Roles.Any(r => r == "Author" || r == "Moderator"))
+			if (comment.UserId == userInfo!.UserId)
 			{
 				await TicketService.UpdateCommentAsync(comment, CompanyId, userInfo!.UserId);
 				Comments = await TicketService.GetTicketCommentsAsync(TicketId, CompanyId);

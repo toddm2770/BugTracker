@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using BlazorAuthTemplate.Client.Models;
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
 namespace BlazorAuthTemplate.Client.Helpers

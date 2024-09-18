@@ -4,9 +4,9 @@ namespace BlazorAuthTemplate.Client.Helpers
 {
 	public static class ImageHelper
 	{
-		public static readonly string DefaultProfilePicture = "/img/DefaultContactImage.png";
-		public static readonly string DefaultCompanyImage = "/img/DefaultCompanyImage.png";
-		public static readonly string DefaultProjectImage = "/img/DefaultProjectImage.png";
+		public static readonly string DefaultProfilePicture = "/image/ProfileImage.jpg";
+		public static readonly string DefaultCompanyImage = "/image/DefaultCompanyImage.png";
+		public static readonly string DefaultProjectImage = "/image/DefaultProjectImage.png";
 		public static int MaxFileSize = 5 * 1024 * 1024;
 
 		public static async Task<string> GetDataUrl(IBrowserFile file)
