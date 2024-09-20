@@ -48,13 +48,16 @@
 										<p>@member.Email</p>
 										@if (userrole != null && userrole.Contains("Admin"))
 										{
-													<InputSelect @bind-Value="@member.Role" @onchange="() => UpdateRole(member)">
+													<InputSelect @bind-Value="@member.Role">
 														<option value="Admin">Admin</option>
 														<option value="ProjectManager">Project Manager</option>
 														<option value="Developer">Developer</option>
 														<option value="Submitter">Submitter</option>
 														<option value="DemoUser">Demo User</option>
 													</InputSelect>
+													<button class="btn btn-sm btn-primary" @onclick="() => UpdateRole(member)">
+														Submit
+													</button>
 										}
 										<hr />
 									</div>
@@ -293,8 +296,6 @@ else
 			try
 			{
 				await CompanyService.UpdateUserRoleAsync(member, userInfo.UserId);
-
-				members = await CompanyService.GetCompanyMembersAsync(userInfo.CompanyId);
 			}
 			catch (Exception ex)
 			{

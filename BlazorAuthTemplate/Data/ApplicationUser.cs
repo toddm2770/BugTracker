@@ -36,10 +36,11 @@ namespace BlazorAuthTemplate.Data
 		{
 			return new UserDTO()
 			{
+                Id = applicationUser.Id,
 				FirstName = applicationUser.FirstName,
 				LastName = applicationUser.LastName,
 				Email = applicationUser.Email,
-                CompanyId = applicationUser.CompanyId
+                CompanyId = applicationUser.CompanyId,
 			};
 		}
 	}
