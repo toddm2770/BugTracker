@@ -9,8 +9,6 @@ namespace BlazorAuthTemplate.Models
 		[Required]
 		public byte[]? Data { get; set; }
 
-		[Required]
-		public string? Extension { get; set; }
 
 		[Required]
 		public string? Type { get; set; }

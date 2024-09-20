@@ -59,7 +59,7 @@ public class UploadsController(ApplicationDbContext context) : ControllerBase
 
 		if (author?.Image is not null)
 		{
-			return File(author.Image.Data!, author.Image.Extension!);
+			return File(author.Image.Data!, author.Image.Type!);
 		}
 		else
 		{

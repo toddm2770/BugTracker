@@ -27,8 +27,7 @@ namespace BlazorAuthTemplate.Helpers
             FileUpload upload = new FileUpload()
             {
                 Id = Guid.NewGuid(),
-                Data = data,
-                Extension = file.ContentType
+                Data = data
             };
 
             return upload;
@@ -49,7 +48,6 @@ namespace BlazorAuthTemplate.Helpers
                     {
                         Id = Guid.NewGuid(),
                         Data = data,
-                        Extension = contentType
                     };
 
                     return upload;

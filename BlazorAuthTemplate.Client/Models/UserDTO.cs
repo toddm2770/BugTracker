@@ -5,7 +5,7 @@ namespace BlazorAuthTemplate.Client.Models
     public class UserDTO
     {
         [Required]
-        public int Id { get; set; }
+        public string? Id { get; set; }
 
         [Required]
         public int CompanyId { get; set; }
@@ -22,5 +22,7 @@ namespace BlazorAuthTemplate.Client.Models
 
         [Required]
         public string? Email { get; set; }
+
+        public string? Role { get; set; }
     }
 }
