@@ -1,0 +1,275 @@
+﻿@page "/projectsoverview"
+
+@using BlazorAuthTemplate.Client.Helpers
+@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
+@using BlazorAuthTemplate.Client.Components.UI
+@using BlazorAuthTemplate.Models
+
+@inject ITicketService TicketService
+@inject IProjectService ProjectService
+@inject ICompanyService CompanyService
+
+<PageTitle>Home</PageTitle>
+
+@rendermode InteractiveServer
+
+	<div class="container mt-3">
+		<div class="hstack justify-content-end">
+			<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProject">Add Project</button>
+			<button class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#addTicket">Add Ticket</button>
+			<h3 class="ms-2">Welcome, @userInfo.FullName</h3>
+		</div>
+		<div class="row mt-2 justify-content-center text-center">
+			<div class="col-12 col-md-6">
+				<h2 class="text-primary fw-bold">
+					@company?.Name
+				</h2>
+				<img src="/image/DefaultCompanyImage.jpg" style="width: 500px; height: auto" />
+				<div class="row">
+					<div class="col-6">
+						<h5 class="mt-3">@company?.Description </h5>
+					</div>
+
+					<div class="col-6">
+						<h4 class="mt-3">Members:</h4>
+						<div style="max-height: 250px; overflow: auto;">
+
+							@if (members != null)
+							{
+
+								@foreach (var member in members)
+								{
+									<div>
+										<p>@member.FullName</p>
+										<p>@member.Email</p>
+										@if (userrole != null && userrole.Contains("Admin"))
+										{
+											<InputSelect @bind-Value="@member.Role">
+												<option value="Admin">Admin</option>
+												<option value="ProjectManager">Project Manager</option>
+												<option value="Developer">Developer</option>
+												<option value="Submitter">Submitter</option>
+												<option value="DemoUser">Demo User</option>
+											</InputSelect>
+											<button class="btn btn-sm btn-primary" @onclick="() => UpdateRole(member)">
+												Submit
+											</button>
+										}
+										<hr />
+									</div>
+
+								}
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-md-6">
+
+				<h3 class="text-end fw-bold text-success">Published Projects</h3>
+				<div class="modal fade" id="addProject" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<ProjectForm Project="newProject" OnSubmit="AddProject" OnCancel="CancelAddProject" />
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal fade" id="addTicket" tabindex="-1" aria-labelledby="addTicketLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<TicketForm Ticket="newTicket" OnSubmit="AddTicket" OnCancel="CancelAddTicket" />
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th scope="col">Project Name</th>
+							<th scope="col" class="text-end">Priority</th>
+							<th scope="col" class="text-end">Ticket Count</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var Project in projects)
+						{
+							<tr>
+								<td>@Project.Name</td>
+								<td class="text-end">@Project.Priority</td>
+								<td class="text-end">@Project.Tickets?.Count()</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+
+				<h3 class="mt-3 text-end fw-bold text-danger">Archived Projects</h3>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th scope="col">Project Name</th>
+							<th scope="col" class="text-end">Priority</th>
+							<th scope="col" class="text-end">Ticket Count</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var Project in archivedProjects)
+						{
+							<tr>
+								<td>@Project.Name</td>
+								<td class="text-end">@Project.Priority</td>
+								<td class="text-end">@Project.Tickets?.Count()</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	private UserInfo? userInfo;
+
+	private IEnumerable<UserDTO>? members;
+
+	private CompanyDTO? company { get; set; }
+
+	private IEnumerable<ProjectDTO> projects = [];
+
+	private IEnumerable<ProjectDTO> archivedProjects = [];
+
+	private IEnumerable<Enum>? roles;
+
+	private ProjectDTO? newProject { get; set; }
+
+	public TicketDTO? newTicket { get; set; }
+
+	public string? userrole;
+
+	private enum Status
+	{
+		Viewing,
+		EditingTicket,
+		EditingProject,
+		EditingRoles
+	}
+
+	private Status status = Status.Viewing;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+			if (userInfo != null)
+			{
+
+				newProject = new();
+
+				projects = await ProjectService.GetAllProjectsAsync(userInfo.CompanyId);
+
+				company = await CompanyService.GetCompanyByIdAsync(userInfo.CompanyId);
+
+				members = await CompanyService.GetCompanyMembersAsync(userInfo.CompanyId);
+
+				archivedProjects = await ProjectService.GetArchivedProjects(userInfo.CompanyId);
+
+				userrole = await CompanyService.GetUserRoleAsync(userInfo.UserId, userInfo.CompanyId);
+
+				newTicket = new();
+
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
+
+	private async Task AddProject(ProjectDTO project)
+	{
+		int companyId = userInfo!.CompanyId;
+
+		try
+		{
+			await ProjectService.AddProjectAsync(project, companyId);
+
+			projects = await ProjectService.GetAllProjectsAsync(userInfo.CompanyId);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+
+		status = Status.Viewing;
+
+		StateHasChanged();
+	}
+
+	public void CancelAddProject()
+	{
+		status = Status.Viewing;
+
+		newProject = new();
+
+		StateHasChanged();
+	}
+
+	public async Task AddTicket(TicketDTO updatedTicket)
+	{
+
+		int companyId = userInfo!.CompanyId;
+
+		try
+		{
+			await TicketService.AddTicketAsync(updatedTicket, companyId);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
+
+	private void CancelAddTicket()
+	{
+		status = Status.Viewing;
+
+		newTicket = new TicketDTO();
+
+		StateHasChanged();
+	}
+
+	private async Task UpdateRole(UserDTO member)
+	{
+		if (userInfo != null)
+		{
+			try
+			{
+				await CompanyService.UpdateUserRoleAsync(member, userInfo.UserId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+		}
+	}
+}

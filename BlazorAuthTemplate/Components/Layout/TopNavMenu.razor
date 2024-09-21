@@ -9,66 +9,72 @@
 
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-				<li class="nav-item">
+				<li class="nav-item hstack">
 					<NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
 						<i class="bi bi-house"></i>
 						<span>Home</span>
 					</NavLink>
-                    <NavLink class="nav-link" href="/details" Match="NavLinkMatch.All">
-                        <i class="bi bi-card-heading"></i>
-                        <span>Project Details</span>
-                    </NavLink>
+					<AuthorizeView>
+						<NavLink class="nav-link" href="/projectsoverview" Match="NavLinkMatch.All">
+							<i class="bi bi-view-stacked"></i>
+							<span>Company Overview</span>
+						</NavLink>
+						<NavLink class="nav-link" href="/details" Match="NavLinkMatch.All">
+							<i class="bi bi-card-heading"></i>
+							<span>Project Details</span>
+						</NavLink>
+					</AuthorizeView>
 				</li>
 
 			</ul>
-            <ul class="navbar-nav ms-auto mb-2 mb-md-0">
-                <li class="nav-item dropdown ">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-stack"></i>
-                        <span>Account</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end text-nowrap px-2 m-2">
-                        <AuthorizeView>
-                            <Authorized>
-                                @{
-                                    string? firstName = context.User.FindFirst("FirstName")?.Value;
-                                    string? lastName = context.User.FindFirst("LastName")?.Value;
-                                    string? profilePicture = context.User.FindFirst("ProfilePictureUrl")?.Value;
-                                }
+			<ul class="navbar-nav ms-auto mb-2 mb-md-0">
+				<li class="nav-item dropdown ">
+					<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+						<i class="bi bi-stack"></i>
+						<span>Account</span>
+					</a>
+					<ul class="dropdown-menu dropdown-menu-end text-nowrap px-2 m-2">
+						<AuthorizeView>
+							<Authorized>
+								@{
+									string? firstName = context.User.FindFirst("FirstName")?.Value;
+									string? lastName = context.User.FindFirst("LastName")?.Value;
+									string? profilePicture = context.User.FindFirst("ProfilePictureUrl")?.Value;
+								}
 
-                                <li class="nav-item">
-                                    <NavLink class="nav-link" href="Account/Manage">
-                                        <img src="@profilePicture" class="profile-picture" />
-                                        @firstName @lastName
-                                    </NavLink>
-                                </li>
-                                <li class="nav-item">
-                                    <form action="Account/Logout" method="post">
-                                        <AntiforgeryToken />
-                                        <input type="hidden" name="ReturnUrl" value="" />
-                                        <button type="submit" class="nav-link">
-                                            <span class="bi bi-arrow-bar-left" aria-hidden="true"></span> Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </Authorized>
-                            <NotAuthorized>
-                                <li class="nav-item">
-                                    <NavLink class="nav-link" href="Account/Register">
-                                        <span class="bi bi-person" aria-hidden="true"></span> Register
-                                    </NavLink>
-                                </li>
-                                <li class="nav-item">
-                                    <NavLink class="nav-link" href="Account/Login">
-                                        <span class="bi bi-person-badge" aria-hidden="true"></span> Login
-                                    </NavLink>
-                                </li>
-                            </NotAuthorized>
-                        </AuthorizeView>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+								<li class="nav-item">
+									<NavLink class="nav-link" href="Account/Manage">
+										<img src="@profilePicture" class="profile-picture" />
+										@firstName @lastName
+									</NavLink>
+								</li>
+								<li class="nav-item">
+									<form action="Account/Logout" method="post">
+										<AntiforgeryToken />
+										<input type="hidden" name="ReturnUrl" value="" />
+										<button type="submit" class="nav-link">
+											<span class="bi bi-arrow-bar-left" aria-hidden="true"></span> Logout
+										</button>
+									</form>
+								</li>
+							</Authorized>
+							<NotAuthorized>
+								<li class="nav-item">
+									<NavLink class="nav-link" href="Account/Register">
+										<span class="bi bi-person" aria-hidden="true"></span> Register
+									</NavLink>
+								</li>
+								<li class="nav-item">
+									<NavLink class="nav-link" href="Account/Login">
+										<span class="bi bi-person-badge" aria-hidden="true"></span> Login
+									</NavLink>
+								</li>
+							</NotAuthorized>
+						</AuthorizeView>
+					</ul>
+				</li>
+			</ul>
+		</div>
 	</div>
 </nav>
 
