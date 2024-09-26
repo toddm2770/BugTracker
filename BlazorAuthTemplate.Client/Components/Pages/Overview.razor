@@ -14,78 +14,72 @@
 <div class="container-fluid mt-3">
 	<div class="row">
 		<div class="col-12 col-md-6">
-			@if (company != null)
-			{
-				<h3 class="text-center text-md-start">@company.Name</h3>
-			}
-		</div>
-		<div class="col-12 col-md-6">
-			@if (userInfo != null)
-			{
-				<h3 class="text-center text-md-end">Welcome, @userInfo.FullName</h3>
-			}
-		</div>
-	</div>
-	<div class="row">
-		<h4 class="mt-3">Active Projects:</h4>
-		<div class="col-12 col-md-6">
-			<div class="row">
-				@foreach (var project in projects)
-				{
-					<div class="col-6 col-md-3">
-						<div class="card mb-3" style="width: 100%; height: 12rem;">
-							<div class="card-body">
-								<h5 style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;" class="card-title oneline-text">
-									@project.Name
-								</h5>
-								@if (members != null)
-								{
-									<h6>@members.Count() Members</h6>
-								}
-								@if (project.Tickets != null)
-								{
-									<h6>@project.Tickets.Count() Tickets</h6>
-								}
-								<a href="#" class="btn btn-primary">Details</a>
-							</div>
-						</div>
-					</div>
-				}
-			</div>
-		</div>
-		<h4 class="mt-3">Archived Projects:</h4>
-		<div class="col-12 col-md-6">
-			<div class="row">
-				@foreach (var project in archivedProjects)
-				{	
-					<div class="col-6 col-md-3">
-						<div class="card mb-3" style="width: 100%; height: 12rem;">
-							<div class="card-body">
-								<h5 style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;" class="card-title oneline-text">
-									@project.Name
-								</h5>
-								@if (members != null)
-								{
-									var projectManager = members.Where(m => m.Role != null && m.Role.Contains("ProjectManager")).FirstOrDefault();
-									if(projectManager != null)
+			<div class="card bg-primary mx-3 my-3 p-3">
+				<h4 class="text-white">Active Projects:</h4>
+				<div class="row g-3">
+					@foreach (var project in projects)
+					{
+						<div class="col-6 col-md-3">
+							<div class="card" style="width: 100%; height: 12rem;">
+								<div class="card-body">
+									<h5 style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;" class="card-title oneline-text">
+										@project.Name
+									</h5>
+									@if (members != null)
 									{
-										<h6>Project Manager: @projectManager.FullName</h6>
+										<h6>@members.Count() Members</h6>
 									}
-									<h6>@members.Count() Members</h6>
-								}
-								@if (project.Tickets != null)
-								{
-									<h6>@project.Tickets.Count() Tickets</h6>
-								}
-								<a href="#" class="btn btn-primary">Details</a>
+									@if (project.Tickets != null)
+									{
+										<h6>@project.Tickets.Count() Tickets</h6>
+									}
+									<a href="#" class="btn btn-primary">Details</a>
+								</div>
 							</div>
 						</div>
-					</div>
-				}
+					}
+				</div>
 			</div>
+
+			<div class="card bg-warning mx-3 my-3 p-3">
+				<h4 class="text-white">Archived Projects:</h4>
+				<div class="row g-3">
+					@foreach (var project in archivedProjects)
+					{
+						<div class="col-6 col-md-3">
+							<div class="card" style="width: 100%; height: 12rem;">
+								<div class="card-body">
+									<h5 style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;" class="card-title oneline-text">
+										@project.Name
+									</h5>
+									@if (members != null)
+									{
+										<h6>@members.Count() Members</h6>
+									}
+									@if (project.Tickets != null)
+									{
+										<h6>@project.Tickets.Count() Tickets</h6>
+									}
+									<a href="#" class="btn btn-primary">Details</a>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+
+
+		<div class="col-12 col-md-6">
+			@if(userInfo != null && company != null && userInfo.Roles != null)
+			{
+				<h5 class="text-center">Welcome, @userInfo.Roles.FirstOrDefault() @userInfo.FullName</h5>
+				<h5 class="text-center">@company.Name</h5>
+			}
 		</div>
 	</div>
 </div>
+
 
 @code {
 	[CascadingParameter]
