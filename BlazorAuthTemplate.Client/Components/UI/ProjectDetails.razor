@@ -15,8 +15,43 @@ else
 {
 	<p>No</p>
 }
+<h5>Project Manager:</h5>
+<div class="hstack">
+	<p class="me-3">@projectManager?.FullName</p>
+	@if(userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
+	{
+		if(Project != null && projectManager != null && projectManager.Id != null)
+		{
+			<button class="btn btn-small btn-danger" @onclick="() => RemoveManager(Project.Id, projectManager.Id, userInfo.UserId)">
+				<i class="bi bi-trash"></i>
+			</button>
+		}
+	}
+</div>
 <h5>Created:</h5> @Project?.Created.ToLocalTime().DateTime <h5>Start Date:</h5> @Project?.StartDate.ToLocalTime().DateTime <h5>End Date:</h5> @Project?.EndDate.ToLocalTime().DateTime
-<h5>Priority: @Project?.Priority</h5>
+<h5>Priority:</h5>@Project?.Priority
+<h5>Members:</h5>
+@if(Project is not null && projectMembers is not null){
+	<div style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+		@foreach (var member in projectMembers.Where(m => m.Role != null && !m.Role.Contains("ProjectManager")))
+		{
+			<div class="hstack mb-2">
+				<p>@member.FullName |</p>
+				<p class="ms-1">@member.Role</p>
+				@if(userInfo is not null && userInfo.Roles is not null && userInfo.Roles.Contains("Admin") || userInfo is not null && userInfo.Roles is not null && userInfo.Roles.Contains("ProjectManager"))
+				{
+					@if(member.Id is not null)
+					{
+						<button class="btn btn-small btn-danger ms-3" @onclick="() => RemoveMember(Project.Id, member.Id, userInfo.UserId)">
+							<i class="bi bi-trash"></i>
+						</button>
+					}
+				}
+			</div>
+		}
+	</div>
+}
+
 <h5>Description:</h5>
 <p>@Project?.Description</p>
 <h3>Active Tickets:</h3>
@@ -220,6 +255,9 @@ else
 	[Parameter, EditorRequired]
 	public ProjectDTO? Project { get; set; }
 
+	[Parameter]
+	public EventCallback OnMemberAdded { get; set; }
+
 	public IEnumerable<TicketDTO>? tickets { get; set; }
 
 	public TicketDTO? newTicket { get; set; }
@@ -228,10 +266,14 @@ else
 
 	private Status status = Status.Viewing;
 
-	UserInfo? userInfo { get; set; }
+	private UserInfo? userInfo { get; set; }
+
+	private UserDTO? projectManager { get; set; }
 
 	private TicketAttachmentDTO newAttachment = new();
 	private IBrowserFile? newFile;
+
+	private IEnumerable<UserDTO>? projectMembers { get; set; }
 
 	private enum Status
 	{
@@ -245,11 +287,35 @@ else
 	{
 		newTicket = new();
 
+		int projectId = Project.Id;
+
+		int companyId = Project.CompanyId;
+
 		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
 
 		newTicket.SubmitterUserId = userInfo?.UserId;
 
 		newTicket.ProjectId = Project!.Id;
+
+		projectMembers = await ProjectService.GetProjectMembersAsync(projectId, companyId);
+
+		projectManager = await ProjectService.GetProjectManagerAsync(projectId, companyId);
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (Project != null)
+		{
+			int projectId = Project.Id;
+
+			int companyId = Project.CompanyId;
+
+			projectMembers = await ProjectService.GetProjectMembersAsync(projectId, companyId);
+
+			projectManager = await ProjectService.GetProjectManagerAsync(projectId, companyId);
+
+			StateHasChanged();
+		}
 	}
 
 	private void EditTicket(TicketDTO ticket)
@@ -312,5 +378,27 @@ else
 	private void HandleAttachment()
 	{
 		Console.WriteLine("Attachment added, ticket details updated.");
+	}
+
+	private async Task RemoveMember(int projectId, string userId, string managerId)
+	{
+		await ProjectService.RemoveMemberFromProjectAsync(projectId, userId, managerId);
+
+		if(Project is not null)
+		{
+			projectMembers = await ProjectService.GetProjectMembersAsync(Project.Id, Project.CompanyId);
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task RemoveManager(int projectId, string userId, string adminId)
+	{
+		if(Project != null && userInfo != null)
+		{
+			await ProjectService.RemoveProjectManagerAsync(projectId, adminId);
+		}
+
+		StateHasChanged();
 	}
 }

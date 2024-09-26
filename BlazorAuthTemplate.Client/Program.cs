@@ -15,4 +15,6 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 
 builder.Services.AddScoped<ITicketService, TicketService>();
 
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+
 await builder.Build().RunAsync();

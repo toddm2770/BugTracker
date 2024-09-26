@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\BlazorAuthTemplate.lib.module.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\BlazorAuthTemplate.lib.module.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BlazorAuthTemplate.Client\BlazorAuthTemplate.Client.csproj" />
     <PackageReference Include="BlazorPageScript" Version="1.0.0" />
     <PackageReference Include="Bogus" Version="35.6.0" />
@@ -27,6 +35,10 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\BlazorAuthTemplate.lib.module.js" />
   </ItemGroup>
 
 </Project>

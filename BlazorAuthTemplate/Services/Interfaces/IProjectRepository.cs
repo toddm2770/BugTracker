@@ -1,4 +1,5 @@
 ﻿using BlazorAuthTemplate.Client.Models;
+using BlazorAuthTemplate.Data;
 using BlazorAuthTemplate.Models;
 
 namespace BlazorAuthTemplate.Services.Interfaces
@@ -18,5 +19,18 @@ namespace BlazorAuthTemplate.Services.Interfaces
 		Task ArchiveProjectAsync(int projectId, int companyId);
 
 		Task RestoreProjectAsync(int projectId, int companyId);
+
+
+		Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, int companyId);
+
+		Task<ApplicationUser?> GetProjectManagerAsync(int projectId, int companyId);
+
+		Task AddMemberToProjectAsync(int projectId, string userId, string managerId);
+
+		Task RemoveMemberFromProjectAsync(int projectId, string userId, string managerId);
+
+		Task AssignProjectManagerAsync(int projectId, string userId, string adminId);
+
+		Task RemoveProjectManagerAsync(int projectId, string adminId);
 	}
 }

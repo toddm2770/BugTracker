@@ -17,5 +17,18 @@ namespace BlazorAuthTemplate.Client.Services.Interfaces
 		Task ArchiveProjectAsync(int projectId, int companyId);
 
 		Task RestoreProjectAsync(int projectId, int companyId);
+
+
+		Task<IEnumerable<UserDTO>> GetProjectMembersAsync(int projectId, int companyId);
+
+		Task<UserDTO?> GetProjectManagerAsync(int projectId, int companyId);
+
+		Task AddMemberToProjectAsync(int projectId, string userId, string managerId);
+
+		Task RemoveMemberFromProjectAsync(int projectId, string userId, string managerId);
+
+		Task AssignProjectManagerAsync(int projectId, string userId, string adminId);
+
+		Task RemoveProjectManagerAsync(int projectId, string adminId);
 	}
 }

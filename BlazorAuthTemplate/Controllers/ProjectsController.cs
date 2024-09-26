@@ -44,7 +44,7 @@ namespace BlazorAuthTemplate.Controllers
 				IEnumerable<ProjectDTO> projects = [];
 
 				projects = await _projectService.GetAllProjectsAsync(_companyId);
-				
+
 				return Ok(projects);
 			}
 			catch (Exception ex)
@@ -133,6 +133,105 @@ namespace BlazorAuthTemplate.Controllers
 			{
 				Console.WriteLine(ex);
 				return Problem();
+			}
+		}
+
+		[HttpPut("{projectId}/{userId}/AddMember")]
+		public async Task<ActionResult> AddMemberToProject([FromRoute] int projectId, [FromRoute] string userId, [FromBody] string managerId)
+		{
+			try
+			{
+				await _projectService.AddMemberToProjectAsync(projectId, userId, managerId);
+
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		[HttpPut("{projectId}/{userId}/AssignManager")]
+		public async Task<ActionResult> AssignProjectManager([FromRoute] int projectId, [FromRoute] string userId, [FromBody] string adminId)
+		{
+			try
+			{
+				await _projectService.AssignProjectManagerAsync(projectId, userId, adminId);
+
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		[HttpGet("{projectId}/{companyId}/GetManager")]
+		public async Task<ActionResult> GetProjectManager([FromRoute] int projectId, [FromRoute] int companyId)
+		{
+			try
+			{
+				UserDTO? manager = new();
+
+				manager = await _projectService.GetProjectManagerAsync(projectId, companyId);
+
+				return Ok(manager);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		[HttpGet("{projectId}/{companyId}/GetMembers")]
+		public async Task<ActionResult> GetProjectMembers([FromRoute] int projectId, [FromRoute] int companyId)
+		{
+			try
+			{
+				IEnumerable<UserDTO> members = [];
+
+				members = await _projectService.GetProjectMembersAsync(projectId, companyId);
+
+				return Ok(members);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		[HttpPut("{projectId}/{userId}/RemoveMember")]
+		public async Task<ActionResult> RemoveMemberFromProject([FromRoute] int projectId, [FromRoute] string userId, [FromBody] string managerId)
+		{
+			try
+			{
+				await _projectService.RemoveMemberFromProjectAsync(projectId, userId, managerId);
+
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		[HttpPut("{adminId}/RemoveManager")]
+		public async Task<ActionResult> RemoveManagerFromProject([FromRoute] string adminId, [FromBody] int projectId)
+		{
+			try
+			{
+				await _projectService.RemoveProjectManagerAsync(projectId, adminId);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
 			}
 		}
 	}
