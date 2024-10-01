@@ -119,7 +119,7 @@ namespace BlazorAuthTemplate.Services
 			originalTicket.Title = ticket.Title;
 			originalTicket.Description = ticket.Description;
 			originalTicket.Priority = ticket.Priority;
-			originalTicket.Updated = ticket.Updated;
+			originalTicket.Updated = DateTimeOffset.Now;
 			originalTicket.Type = ticket.Type;
 
 			await _repository.UpdateTicketAsync(originalTicket, companyId, userId);

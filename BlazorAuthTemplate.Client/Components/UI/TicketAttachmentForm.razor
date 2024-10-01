@@ -4,7 +4,7 @@
 
 @inject ITicketService TicketService
 
-<EditForm Model="newAttachment" OnSubmit="HandleSubmit" class="vstack gap-1">
+<EditForm Model="newAttachment" OnSubmit="HandleSubmit" class="vstack gap-1" style="padding-bottom: 0 !important; margin-bottom: 0 !important;">
     @* OnChange will store the selected file in the newFile field *@
     <InputFile OnChange="e => newFile = e.File" />
     <InputText @bind-Value="newAttachment.Description" class="form-control" placeholder="Description (optional)" />

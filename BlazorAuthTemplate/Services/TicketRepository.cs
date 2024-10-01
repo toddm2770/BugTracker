@@ -135,6 +135,8 @@ namespace BlazorAuthTemplate.Services
 		{
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
+			ticket.Updated = DateTimeOffset.Now;
+
 			context.Update(ticket);
 			await context.SaveChangesAsync();
 

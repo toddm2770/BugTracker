@@ -8,39 +8,25 @@
 <div id="comments">
 	<div class="row">
 		<div class="col-12">
-			<h2 class="h1 py-lg-1 py-xl-3 text-nowrap me-auto">
-				@(Comments.Count() == 1 ? "1 comment" : $"{Comments.Count()} comments")
-			</h2>
+			<h5 class="text-nowrap me-auto">
+				@(Comments!.Count() == 1 ? "1 comment" : $"{Comments!.Count()} comments")
+			</h5>
 		</div>
 		<div>
 			<button class="btn btn-link px-0" data-bs-toggle="collapse" data-bs-target="#newCommentForm">
 				Leave a comment
 			</button>
-			<a class="btn btn-link px-0" href="@Nav.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> {["ReturnUrl"] = Nav.Uri})">
-				Login to comment
-			</a>
 		</div>
 
 		<div class="collapse p-3" id="newCommentForm">
 			<TicketCommentForm Comment="newComment" OnSubmit="HandleAddComment" />
 		</div>
-
-		@if (Comments.Count() == 0)
-		{
-			<div class="text-center py-5 text-muted fs-4">
-				No comments yet!
-			</div>
-		}
-		else
-		{
 			<div class="vstack gap-2">
-				@foreach (TicketCommentDTO comment in Comments.OrderByDescending(c => c.Created))
+				@foreach (TicketCommentDTO comment in Comments!.OrderByDescending(c => c.Created))
 				{
 					<TicketCommentListItem OnEdit="HandleEditComment" OnDelete="HandleDeleteComment" Comment="comment" />
 				}
 			</div>
-		}
-
 	</div>
 </div>
 
@@ -128,6 +114,4 @@
 			throw;
 		}
 	}
-
-
 }

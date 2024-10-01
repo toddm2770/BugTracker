@@ -5,8 +5,6 @@
 
 @inject IProjectService ProjectService
 
-<h3>Project Form</h3>
-
 @if (projectForm is not null)
 {
 	<EditForm Model="projectForm" OnValidSubmit="HandleSubmit">
@@ -41,6 +39,12 @@
 			<label class="form-label">Start Date</label>
 			<input type="date" @bind-value="projectForm.EndDate" />
 			<ValidationMessage For="() => projectForm.EndDate" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Archive Project</label>
+				<InputCheckbox @bind-Value="projectForm.IsArchived" />
+			
+			<ValidationMessage For="() => projectForm.IsArchived" />
 		</div>
 
 		<button class="btn btn-success" type="submit">
@@ -82,14 +86,16 @@
 	protected override async Task OnInitializedAsync()
 	{
 		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
-
-		int companyId = userInfo.CompanyId;
-
-		if (Project != null)
+		if (userInfo != null)
 		{
-			projectForm = CloneProject(Project);
+			int companyId = userInfo.CompanyId;
 
-			clonedProject = CloneProject(Project);
+			if (Project != null)
+			{
+				projectForm = CloneProject(Project);
+
+				clonedProject = CloneProject(Project);
+			}
 		}
 	}
 
@@ -124,7 +130,8 @@
 				Description = Project.Description,
 				Priority = Project.Priority,
 				StartDate = Project.StartDate,
-				EndDate = Project.EndDate
+				EndDate = Project.EndDate,
+				IsArchived = Project.IsArchived
 			};
 	}
 }

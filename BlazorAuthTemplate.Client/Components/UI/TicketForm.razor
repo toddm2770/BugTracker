@@ -1,87 +1,62 @@
-﻿@using BlazorAuthTemplate.Client.Helpers
-@using BlazorAuthTemplate.Client.Models
-@using BlazorAuthTemplate.Client.Services.Interfaces
-@using static BlazorAuthTemplate.Models.Enums
+﻿@inject ITicketService TicketService
 
-@inject ITicketService TicketService
-@inject IProjectService ProjectService
 
-<h3>TicketForm</h3>
-
-@if (ticketForm is not null)
+@if(ticketForm != null)
 {
 	<EditForm Model="ticketForm" OnValidSubmit="HandleSubmit">
-		<div class="row">
-			<div class="mb-2 col-6">
-				<label class="form-label">Title</label>
-				<InputText class="form-control" @bind-Value="ticketForm.Title" />
-				<ValidationMessage For="() => ticketForm.Title" />
-			</div>
-			<div class="mb-2 col-3">
-				<label class="form-label">Priority</label>
-				<InputSelect class="form-select" @bind-Value="ticketForm.Priority">
-					@foreach (var priority in Enum.GetValues(typeof(TicketPriority)).Cast<TicketPriority>())
-					{
-						<option value="@priority">@priority</option>
-					}
-				</InputSelect>
-			</div>
-			<div class="mb-2 col-3">
-				<label class="form-label">Type</label>
-				<InputSelect class="form-select" @bind-Value="ticketForm.Type">
-					@foreach (var type in Enum.GetValues(typeof(TicketType)).Cast<TicketType>())
-					{
-						<option value="@type">@type</option>
-					}
-				</InputSelect>
-			</div>
-			<div class="mb-2 col-6">
-				<label class="form-label">Description</label>
-				<InputTextArea class="form-control" @bind-Value="ticketForm.Description" style="height:70%" />
-				<ValidationMessage For="() => ticketForm.Description" />
-			</div>
-			<div class="mb-2 col-3">
-				<label class="form-label">Status</label>
-				<InputSelect class="form-select" @bind-Value="ticketForm.Status">
-					@foreach (var status in Enum.GetValues(typeof(TicketStatus)).Cast<TicketStatus>())
-					{
-						<option value="@status">@status</option>
-					}
-				</InputSelect>
-			</div>
-			<div class="mb-2 col-3">
-				<label class="form-label">Projects</label>
-				<InputSelect class="form-select" @bind-Value="ticketForm.ProjectId">
-					@if (projects is not null)
-					{
-						@foreach (var project in projects)
-						{
-							<option value="@project.Id">@project.Name + " active"</option>
-						}
-					}
+		<DataAnnotationsValidator />
 
-					@if(archivedProjects is not null)
-					{
-						@foreach (var project in archivedProjects)
-						{
-							<option value="@project.Id">@project.Name + " archived"</option>
-						}
-					}
-				</InputSelect>
-			</div>
+		<div class="mb-2">
+			<label class="form-label">Title</label>
+			<InputText class="form-control" @bind-Value="ticketForm.Title" />
+			<ValidationMessage For="() => ticketForm.Title" />
 		</div>
+		<div class="mb-2">
+			<label class="form-label">Description</label>
+			<InputTextArea class="form-control" @bind-Value="ticketForm.Description" />
+			<ValidationMessage For="() => ticketForm.Description" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Priority</label>
+			<InputSelect class="form-select" @bind-Value="ticketForm.Priority">
+				@foreach(var priority in Enum.GetValues(typeof(TicketPriority)).Cast<TicketPriority>())
+				{
+					<option value="@priority">@priority</option>
+				}
+			</InputSelect>
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Type</label>
+			<InputSelect class="form-select" @bind-Value="ticketForm.Type">
+				@foreach (var type in Enum.GetValues(typeof(TicketType)).Cast<TicketType>())
+				{
+					<option value="@type">@type</option>
+				}
+			</InputSelect>
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Type</label>
+			<InputSelect class="form-select" @bind-Value="ticketForm.Status">
+				@foreach (var status in Enum.GetValues(typeof(TicketStatus)).Cast<TicketStatus>())
+				{
+					<option value="@status">@status</option>
+				}
+			</InputSelect>
+		</div>
+
 		<button class="btn btn-success" type="submit">
 			Save
 		</button>
-		<button class="btn btn-warning" @onclick="() => CancelEdit()">
+
+		<button @onclick="() => CancelEdit()" class="btn btn-warning mt-1">
 			Reset
 		</button>
 	</EditForm>
 }
 
 
-
 @code {
+
 	[CascadingParameter]
 	private Task<AuthenticationState>? AuthStateTask { get; set; }
 
@@ -91,6 +66,9 @@
 	[Parameter, EditorRequired]
 	public EventCallback<TicketDTO> OnSubmit { get; set; }
 
+	[Parameter, EditorRequired]
+	public ProjectDTO? Project { get; set; }
+
 	[Parameter]
 	public EventCallback OnCancel { get; set; }
 
@@ -98,88 +76,70 @@
 
 	private TicketDTO? clonedTicket;
 
-	private IEnumerable<ProjectDTO>? projects { get; set; }
-
-	private IEnumerable<ProjectDTO>? archivedProjects { get; set; }
-
-	public TicketPriority priority { get; set; }
-
-	public TicketType type { get; set; }
+	private TicketPriority priority { get; set; }
 
 	private UserInfo? userInfo;
 
-
 	protected override async Task OnInitializedAsync()
 	{
-		try
-		{
-			userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
 
+		if(userInfo != null)
+		{
 			int companyId = userInfo.CompanyId;
 
-			projects = await ProjectService.GetAllProjectsAsync(companyId);
-
-			archivedProjects = await ProjectService.GetArchivedProjects(companyId);
-
-			if (Ticket is not null)
+			if(Ticket != null)
 			{
-				clonedTicket = CloneTicket(Ticket);
 				ticketForm = CloneTicket(Ticket);
+
+				clonedTicket = CloneTicket(Ticket);
 			}
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(ex);
-			throw;
 		}
 	}
 
 	protected override void OnParametersSet()
 	{
-		if(Ticket is not null)
+		if (Ticket != null)
 		{
-			clonedTicket = CloneTicket(Ticket);
 			ticketForm = CloneTicket(Ticket);
+
+			clonedTicket = CloneTicket(Ticket);
 		}
 	}
 
 	public async Task HandleSubmit()
 	{
-		ticketForm!.SubmitterUserId = userInfo!.UserId;
-
 		await OnSubmit.InvokeAsync(ticketForm);
 	}
 
 	public async Task CancelEdit()
 	{
-			ticketForm = clonedTicket;
-
-			ticketForm = new TicketDTO();
+		ticketForm = clonedTicket;
 
 		await OnCancel.InvokeAsync();
-
-		StateHasChanged();
 	}
 
 	private TicketDTO CloneTicket(TicketDTO ticket)
 	{
-		return new TicketDTO
-			{
-				Title = ticket.Title,
-				Priority = ticket.Priority,
-				Type = ticket.Type,
-				Description = ticket.Description,
-				Status = ticket.Status,
-				ProjectId = ticket.ProjectId,
-				SubmitterUserId = ticket.SubmitterUserId,
-				Project = ticket.Project,
-				Created = ticket.Created,
-				Updated = ticket.Updated,
-				IsArchived = ticket.IsArchived,
-				IsArchivedByProject = ticket.IsArchivedByProject,
-				DeveloperUser = ticket.DeveloperUser,
-				SubmitterUser = ticket.SubmitterUser
-			};
+		if(Ticket != null && Project != null && userInfo != null)
+		{
+			return new TicketDTO
+				{
+					Id = Ticket.Id,
+					Title = Ticket.Title,
+					ProjectId = Project.Id,
+					SubmitterUserId = userInfo.UserId,
+					Description = Ticket.Description,
+					Priority = Ticket.Priority,
+					Type = Ticket.Type,
+					Status = Ticket.Status,
+					TicketComments = Ticket.TicketComments
+				};
+		}
+		else
+		{
+			return new TicketDTO();
+		}
 	}
 }
 

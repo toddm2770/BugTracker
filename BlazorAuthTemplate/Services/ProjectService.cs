@@ -36,7 +36,8 @@ namespace BlazorAuthTemplate.Services
 				Priority = project.Priority,
 				Created = DateTimeOffset.Now,
 				StartDate = project.StartDate,
-				EndDate = project.EndDate
+				EndDate = project.EndDate,
+				IsArchived = project.IsArchived
 			};
 
 			newProject = await _repository.AddProjectAsync(newProject, companyId);
