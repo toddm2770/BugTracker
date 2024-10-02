@@ -152,5 +152,31 @@ namespace BlazorAuthTemplate.Services
 		{
 			await _repository.DeleteTicketAttachment(attachmentId, companyId);
 		}
+
+		public async Task AddDeveloperToTicket(int projectId, int ticketId, string userId, string managerId)
+		{
+			try
+			{
+				await _repository.AddDeveloperToTicket(projectId, ticketId, userId, managerId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		public async Task RemoveDeveloperFromProject(int ticketId, string userId, string managerId)
+		{
+			try
+			{
+				await _repository.RemoveDeveloperFromTicket(ticketId, userId, managerId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
 	}
 }

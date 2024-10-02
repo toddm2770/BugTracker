@@ -2,12 +2,14 @@
 using BlazorAuthTemplate.Data;
 using BlazorAuthTemplate.Models;
 using BlazorAuthTemplate.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
+using static BlazorAuthTemplate.Models.Enums;
 
 namespace BlazorAuthTemplate.Services
 {
-	public class TicketRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : ITicketRespository
+	public class TicketRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IServiceProvider svcProvider) : ITicketRespository
 	{
 		public async Task<TicketComment> AddCommentAsync(TicketComment comment, int companyId)
 		{
@@ -184,6 +186,71 @@ namespace BlazorAuthTemplate.Services
 			{
 				context.Remove(attachment);
 				context.Remove(attachment.FileUpload!);
+				await context.SaveChangesAsync();
+			}
+		}
+
+		public async Task AddDeveloperToTicket(int projectId, int ticketId, string userId, string managerId)
+		{
+			using ApplicationDbContext context = contextFactory.CreateDbContext();
+			using IServiceScope scope = svcProvider.CreateScope();
+			UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+			ApplicationUser? manager = await userManager.FindByIdAsync(managerId);
+			if (manager == null) return;
+
+			bool isAdmin = await userManager.IsInRoleAsync(manager, nameof(Roles.Admin));
+			bool isProjectManager = await userManager.IsInRoleAsync(manager, nameof(Roles.ProjectManager));
+
+			if (!isAdmin && !isProjectManager) return;
+
+			ApplicationUser? userToAdd = await context.Users
+				.FirstOrDefaultAsync(u => u.Id == userId && u.CompanyId == manager.CompanyId);
+
+			if (userToAdd == null) return;
+
+			bool userIsAdmin = await userManager.IsInRoleAsync(userToAdd, nameof(Roles.Admin));
+			bool userIsProjectManager = await userManager.IsInRoleAsync(userToAdd, nameof(Roles.ProjectManager));
+
+			if (userIsAdmin || userIsProjectManager) return;
+
+			Ticket? ticket = await context.Tickets
+				.Include(t => t.DeveloperUser)
+				.Include(t => t.Project)
+				.FirstOrDefaultAsync(t => t.Id == ticketId && t.Project != null && t.Project.CompanyId == manager.CompanyId);
+
+			if (ticket == null) return;
+
+			if (ticket.DeveloperUser != null)
+			{
+				await RemoveDeveloperFromTicket(ticket.Id, userId, managerId);
+			}
+
+			ticket.DeveloperUser = userToAdd;
+			await context.SaveChangesAsync();
+		}
+
+		public async Task RemoveDeveloperFromTicket(int ticketId, string userId, string managerId)
+		{
+			using ApplicationDbContext context = contextFactory.CreateDbContext();
+			using IServiceScope scope = svcProvider.CreateScope();
+			UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+			ApplicationUser? manager = await userManager.FindByIdAsync(managerId);
+			if (manager == null) return;
+
+			bool isAdmin = await userManager.IsInRoleAsync(manager, nameof(Roles.Admin));
+			bool isProjectManager = await userManager.IsInRoleAsync(manager, nameof(Roles.ProjectManager));
+
+			if (!isAdmin && !isProjectManager) return;
+
+			Ticket? ticket = await context.Tickets
+				.Include(t => t.DeveloperUser)
+				.FirstOrDefaultAsync(t => t.Id == ticketId);
+
+			if (ticket != null && ticket.DeveloperUser != null)
+			{
+				ticket.DeveloperUser = null;
 				await context.SaveChangesAsync();
 			}
 		}

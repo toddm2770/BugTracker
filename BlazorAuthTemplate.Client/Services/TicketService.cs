@@ -195,5 +195,33 @@ namespace BlazorAuthTemplate.Client.Services
 			var res = await _httpClient.DeleteAsync($"api/tickets/attachments/{attachmentId}");
 			res.EnsureSuccessStatusCode();
 		}
+
+		public async Task AddDeveloperToTicket(int projectId, int ticketId, string userId, string managerId)
+		{
+			try
+			{
+				HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/tickets/AddDeveloper/{projectId}/{ticketId}/{userId}", managerId);
+				response.EnsureSuccessStatusCode();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		public async Task RemoveDeveloperFromProject(int ticketId, string userId, string managerId)
+		{
+			try
+			{
+				HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/tickets/RemoveDeveloper/{ticketId}/{userId}", managerId);
+				response.EnsureSuccessStatusCode();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
 	}
 }

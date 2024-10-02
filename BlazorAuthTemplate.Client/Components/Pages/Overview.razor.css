@@ -1,6 +1,16 @@
 ﻿body {
 }
 
+.progress {
+    height: 4px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    background-color: #007bff;
+    transition: width 0.6s ease;
+}
+
 .scrollable-content {
     overflow-y: auto; /* Allow vertical scrolling */
     overflow-x: hidden; /* Prevent horizontal scrolling */

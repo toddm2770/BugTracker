@@ -36,5 +36,9 @@ namespace BlazorAuthTemplate.Services.Interfaces
 		Task<TicketAttachment> AddTicketAttachment(TicketAttachment attachment, int companyId);
 
 		Task DeleteTicketAttachment(int attachmentId, int companyId);
+
+		Task AddDeveloperToTicket(int projectId, int ticketId, string userId, string managerId);
+
+		Task RemoveDeveloperFromTicket(int ticketId, string userId, string managerId);
 	}
 }

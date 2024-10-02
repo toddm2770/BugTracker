@@ -141,7 +141,7 @@ namespace BlazorAuthTemplate.Controllers
 			{
 				IEnumerable<TicketCommentDTO> comments = [];
 
-				if(ticketId != 0)
+				if (ticketId != 0)
 				{
 					comments = await _ticketsService.GetTicketCommentsAsync(ticketId, _companyId);
 				}
@@ -184,7 +184,7 @@ namespace BlazorAuthTemplate.Controllers
 				comment.Created = DateTime.UtcNow;
 
 				TicketCommentDTO createdComment = await _ticketsService.AddCommentAsync(comment, _companyId);
-				return CreatedAtAction(nameof(GetCommentById), new {id = createdComment.Id }, createdComment);
+				return CreatedAtAction(nameof(GetCommentById), new { id = createdComment.Id }, createdComment);
 			}
 			catch (Exception ex)
 			{
@@ -254,7 +254,6 @@ namespace BlazorAuthTemplate.Controllers
 				attachment.FileName = file.FileName;
 			}
 
-			// ImageHelper was renamed to UploadHelper!
 			FileUpload upload = await UploadHelper.GetImageUploadAsync(file);
 
 			try
@@ -268,15 +267,54 @@ namespace BlazorAuthTemplate.Controllers
 			}
 		}
 
-		// DELETE: api/Tickets/attachments/1
 		[HttpDelete("attachments/{attachmentId}")]
 		public async Task<IActionResult> DeleteTicketAttachment(int attachmentId)
 		{
 			var user = await _userManager.GetUserAsync(User);
 
-			await _ticketsService.DeleteTicketAttachment(attachmentId, user!.CompanyId);
+			try
+			{
+				await _ticketsService.DeleteTicketAttachment(attachmentId, user!.CompanyId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
 
-			return NoContent();
+			return Ok();
+		}
+
+		[HttpPut("AddDeveloper/{projectId}/{ticketId}/{userId}")]
+		public async Task<ActionResult> AssignTicketDeveloper([FromRoute] int projectId, [FromRoute] int ticketId, [FromRoute] string userId, [FromBody] string managerId)
+		{
+			try
+			{
+				await _ticketsService.AddDeveloperToTicket(projectId, ticketId, userId, managerId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+			return Ok();
+		}
+
+		[HttpPut("RemoveDeveloper/{ticketId}/{userId}")]
+		public async Task<ActionResult> RemoveMemberFromProject([FromRoute] int ticketId, [FromRoute] string userId, [FromBody] string managerId)
+		{
+
+			try
+			{
+				await _ticketsService.RemoveDeveloperFromProject(ticketId, userId, managerId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+
+			return Ok();
 		}
 	}
 }
