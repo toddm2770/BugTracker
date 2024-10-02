@@ -12,17 +12,17 @@
 	<a class="dismiss">🗙</a>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid bg-900 h-100">
 	<div class="row">
 		<div class="col-12 col-md-3">
 			@*Active Projects Start*@
-			<div class="card bg-primary mx-3 my-3 p-3 scrollable-content" style="height: 40vh; overflow-y: auto;">
+			<div class="card bg-1000 mx-3 my-3 p-3 scrollable-content" style="height: 40vh; overflow-y: auto;">
 				<div class="row mb-2">
 					<div class="col-6">
 						<h4 class="text-white">Active Projects</h4>
 					</div>
 					<div class="col-6 text-end">
-						<button type="button" class="btn btn-success text-white rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+						<button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectModal">
 							Add Project
 						</button>
 					</div>
@@ -31,18 +31,18 @@
 					@foreach (var project in projects)
 					{
 						<div class="col-6">
-							<button @onclick="() => SelectProject(project.Id)" class="btn btn-success card rounded" style="width: 100%; height: 8rem">
+							<button @onclick="() => SelectProject(project.Id)" class="btn card card-custom-bg rounded" style="width: 100%; height: 8rem;">
 								<div class="card-body pt-0">
-									<h5 class="card-title">
+									<h5 class="card-title text-dark">
 										@project.Name
 									</h5>
 									@if (members != null && project.Members != null)
 									{
-										<h6>@project.Members.Count() Members</h6>
+										<h6 class="text-dark">@project.Members.Count() Members</h6>
 									}
 									@if (project.Tickets != null)
 									{
-										<h6>@project.Tickets.Count() Tickets</h6>
+										<h6 class="text-dark">@project.Tickets.Count() Tickets</h6>
 									}
 								</div>
 							</button>
@@ -54,24 +54,24 @@
 
 
 			@*Acrchived Projects Start*@
-			<div class="card bg-warning mx-3 my-3 p-3 scrollable-content" style="height: 40vh; overflow-y: auto;">
+			<div class="card bg-1000 mx-3 my-3 p-3 scrollable-content" style="height: 40vh; overflow-y: auto;">
 				<h4 class="text-white">Archived Projects</h4>
 				<div class="row g-3">
 					@foreach (var project in archivedProjects)
 					{
 						<div class="col-6">
-							<button @onclick="() => SelectProject(project.Id)" class="btn btn-success card rounded" style="width: 100%; height: 8rem">
+							<button @onclick="() => SelectProject(project.Id)" class="btn card card-custom-bg-2 rounded" style="width: 100%; height: 8rem;">
 								<div class="card-body pt-0">
-									<h5 class="card-title">
+									<h5 class="card-title text-dark">
 										@project.Name
 									</h5>
 									@if (project.Members != null && project.Members != null)
 									{
-										<h6>@project.Members.Count() Members</h6>
+										<h6 class="text-dark">@project.Members.Count() Members</h6>
 									}
 									@if (project.Tickets != null)
 									{
-										<h6>@project.Tickets.Count() Tickets</h6>
+										<h6 class="text-dark">@project.Tickets.Count() Tickets</h6>
 									}
 								</div>
 							</button>
@@ -94,29 +94,33 @@
 							<div class="mt-2 hstack">
 								@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin") || userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager"))
 								{
-									<button type="button" class="btn btn-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addMembersModal">
-										Add Members
+									<button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addMembersModal">
+										Add Member
 									</button>
 
-									<button type="button" class="btn btn-danger ms-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#removeMembersModal">
-										Remove Members
+									<button type="button" class="btn btn-outline-danger ms-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#removeMembersModal">
+										Remove Member
 									</button>
 
-									<button type="button" class="btn btn-primary ms-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#editProjectModal">
+									<button type="button" class="btn btn-outline-warning ms-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#editProjectModal">
 										Edit Project
+									</button>
+
+									<button type="button" class="btn btn-outline-warning ms-2 rounded-pill">
+										Edit Member Role
 									</button>
 
 									@if (SelectedProject.IsArchived == false)
 									{
-										<button class="btn btn-warning ms-2 rounded-pill" @onclick="() => ArchiveProject(SelectedProject.Id)">
+										<button class="btn btn-outline-danger ms-2 rounded-pill" @onclick="() => ArchiveProject(SelectedProject.Id)">
 											Archive Project
 										</button>
 									}
 
 									@if (SelectedProject.IsArchived == true)
 									{
-										<button class="btn btn-info ms-2 rounded-pill" @onclick="() => RestoreProject(SelectedProject.Id)">
-											RestoreProject
+										<button class="btn btn-outline-success ms-2 rounded-pill" @onclick="() => RestoreProject(SelectedProject.Id)">
+											Restore Project
 										</button>
 									}
 								}
@@ -124,7 +128,7 @@
 							@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
 							{
 								<div class="hstack mt-2">
-									<button class="btn btn-info rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectManagerModal">
+									<button class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectManagerModal">
 										Add Project Manager
 									</button>
 								</div>
@@ -177,7 +181,7 @@
 									<h4 class="text-white">Active Tickets</h4>
 								</div>
 								<div class="col-6 text-end">
-									<button type="button" class="btn btn-success text-white rounded-pill" data-bs-toggle="modal" data-bs-target="#addTicketModal">
+									<button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addTicketModal">
 										Add Ticket
 									</button>
 								</div>
@@ -186,11 +190,11 @@
 							{
 								foreach (var ticket in SelectedProject.Tickets.Where(t => t.IsArchived == false))
 								{
-									<button @onclick="() => SelectTicket(ticket.Id)" class="btn btn-success card mb-1 text-dark rounded-pill" style="width: 100%; height: 4rem;">
-										<h4>@ticket.Title</h4>
+									<button @onclick="() => SelectTicket(ticket.Id)" class="btn card card-custom-bg mb-1 rounded-pill text-white" style="width: 100%; height: 4rem;">
+										<h4 class="text-dark">@ticket.Title</h4>
 										@if (ticket.TicketComments != null)
 										{
-											<p class="text-primary">Comments: @ticket.TicketComments.Count() | Priority: @ticket.Priority | Type: @ticket.Type | Status: @ticket.Status</p>
+											<p class="text-dark">Comments: @ticket.TicketComments.Count() | Priority: @ticket.Priority | Type: @ticket.Type | Status: @ticket.Status</p>
 										}
 									</button>
 								}
@@ -199,11 +203,11 @@
 
 								foreach (var ticket in SelectedProject.Tickets.Where(t => t.IsArchived == true))
 								{
-									<button @onclick="() => SelectTicket(ticket.Id)" class="btn btn-success bg-warning card mb-1 text-dark rounded-pill" style="width: 100%; height: 4rem;">
-										<h4>@ticket.Title</h4>
+									<button @onclick="() => SelectTicket(ticket.Id)" class="btn card card-custom-bg-2 mb-1 text-dark rounded-pill" style="width: 100%; height: 4rem;">
+										<h4 class="text-dark">@ticket.Title</h4>
 										@if (ticket.TicketComments != null)
 										{
-											<p class="text-primary">Comments: @ticket.TicketComments.Count() | Priority: @ticket.Priority | Type: @ticket.Type | Status: @ticket.Status</p>
+											<p class="text-dark">Comments: @ticket.TicketComments.Count() | Priority: @ticket.Priority | Type: @ticket.Type | Status: @ticket.Status</p>
 										}
 									</button>
 								}
@@ -221,19 +225,19 @@
 						@if (SelectedTicket != null && userInfo != null)
 						{
 							<div class="mt-2 text-start hstack">
-								<button class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#editTicketModal">
+								<button class="btn btn-outline-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#editTicketModal">
 									Edit Ticket
 								</button>
 								@if (SelectedTicket.IsArchived == false)
 								{
-									<button class="btn btn-warning rounded-pill ms-2" @onclick="() => ArchiveTicket(SelectedTicket.Id)">
+									<button class="btn btn-outline-danger rounded-pill ms-2" @onclick="() => ArchiveTicket(SelectedTicket.Id)">
 										Archive Ticket
 									</button>
 								}
 
 								@if (SelectedTicket.IsArchived == true)
 								{
-									<button class="btn btn-warning rounded-pill ms-2" @onclick="() => RestoreTicket(SelectedTicket.Id)">
+									<button class="btn btn-secondary btn-falcon-success rounded-pill ms-2" @onclick="() => RestoreTicket(SelectedTicket.Id)">
 										Restore Ticket
 									</button>
 								}
@@ -241,7 +245,12 @@
 							<h3 class="text-white mt-3">@SelectedTicket.Title</h3>
 							<p>Description: @SelectedTicket.Description</p>
 							<p>Created: @SelectedTicket.Created.ToLocalTime().ToString("g")</p>
-							<p>Updated: @SelectedTicket.Updated?.ToLocalTime().ToString("g")</p>
+							@if(SelectedTicket.Updated.HasValue)
+							{
+								<p>Updated: @SelectedTicket.Updated.Value.ToString("g")</p>
+							}
+							<p>Updated: @(SelectedTicket.Updated.HasValue ? SelectedTicket.Updated.Value.ToLocalTime().ToString("g") : "Not updated yet")</p>
+							<p>Developer: @SelectedTicket.DeveloperUser?.FullName</p>
 							<p>Submitter: @SelectedTicket.SubmitterUser?.FullName</p>
 							<p>Add Ticket Attachment:</p>
 							<TicketAttachmentForm TicketId="SelectedTicket.Id" />
@@ -484,6 +493,8 @@
 
 	private IEnumerable<UserDTO>? projectMembers { get; set; }
 
+	private IEnumerable<TicketDTO>? tickets { get; set; }
+
 	private string? selectedMemberId;
 
 	private UserDTO? selectedMember { get; set; }
@@ -539,11 +550,22 @@
 
 				SelectedProject = projects.FirstOrDefault();
 
-				if (SelectedProject != null)
+				if (SelectedProject != null && SelectedProject.Tickets != null)
 				{
-					projectMembers = await ProjectService.GetProjectMembersAsync(SelectedProject.Id, companyId);
+					var activeTicket = SelectedProject.Tickets.FirstOrDefault(t => !t.IsArchived);
 
-					SelectedTicket = SelectedProject.Tickets?.Where(t => t.IsArchived == false).FirstOrDefault() ?? SelectedProject.Tickets?.Where(t => t.IsArchived == true).FirstOrDefault();
+					if (activeTicket != null)
+					{
+						SelectedTicket = await TicketService.GetTicketByIdAsync(activeTicket.Id, companyId);
+					}
+					else
+					{
+						var archivedTicket = SelectedProject.Tickets.FirstOrDefault(t => t.IsArchived);
+						if (archivedTicket != null)
+						{
+							SelectedTicket = await TicketService.GetTicketByIdAsync(archivedTicket.Id, companyId);
+						}
+					}
 				}
 
 				selectedMemberId = "";
@@ -567,9 +589,22 @@
 
 			projectMembers = await ProjectService.GetProjectMembersAsync(projectId, companyId);
 
-			if (SelectedProject != null)
+			if (SelectedProject != null && SelectedProject.Tickets != null)
 			{
-				SelectedTicket = SelectedProject.Tickets?.Where(t => t.IsArchived == false).FirstOrDefault() ?? SelectedProject.Tickets?.Where(t => t.IsArchived == true).FirstOrDefault();
+				var activeTicket = SelectedProject.Tickets.FirstOrDefault(t => !t.IsArchived);
+
+				if (activeTicket != null)
+				{
+					SelectedTicket = await TicketService.GetTicketByIdAsync(activeTicket.Id, companyId);
+				}
+				else
+				{
+					var archivedTicket = SelectedProject.Tickets.FirstOrDefault(t => t.IsArchived);
+					if (archivedTicket != null)
+					{
+						SelectedTicket = await TicketService.GetTicketByIdAsync(archivedTicket.Id, companyId);
+					}
+				}
 			}
 
 			selectedMemberId = "";

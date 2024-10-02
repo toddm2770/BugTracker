@@ -92,7 +92,13 @@ namespace BlazorAuthTemplate.Services
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
 			Ticket? ticket = await context.Tickets
+										  .Include(t => t.SubmitterUser)
+										  .Include(t => t.DeveloperUser)
+										  .Include(t => t.TicketAttachments)
+										  .Include(t => t.TicketComments)
 										  .FirstOrDefaultAsync(t => t.Id == ticketId);
+
+			Console.WriteLine($"Updated: {ticket?.Updated?.ToString() ?? "null"}");
 			return ticket;
 		}
 
@@ -124,7 +130,7 @@ namespace BlazorAuthTemplate.Services
 		{
 			using ApplicationDbContext context = contextFactory.CreateDbContext();
 
-			if(await context.TicketComments.AnyAsync(c => c.Id == comment.Id))
+			if (await context.TicketComments.AnyAsync(c => c.Id == comment.Id))
 			{
 				context.TicketComments.Update(comment);
 				await context.SaveChangesAsync();

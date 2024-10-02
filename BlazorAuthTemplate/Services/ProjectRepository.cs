@@ -140,7 +140,8 @@ namespace BlazorAuthTemplate.Services
 
 			List<Project> projects = await context.Projects
 												  .Where(p => p.CompanyId == companyId && p.IsArchived == true)
-												  .Include(p => p.Tickets)	
+												  .Include(p => p.Tickets)
+												  .ThenInclude(t => t.TicketComments)
 												  .Include(p => p.Members)
 												  .Include(p => p.Company)
 												  .ToListAsync();
