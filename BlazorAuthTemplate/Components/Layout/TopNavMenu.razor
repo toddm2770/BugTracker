@@ -14,10 +14,16 @@
 						<i class="bi bi-house"></i>
 						<span>Home</span>
 					</NavLink>
-					<AuthorizeView Roles="Admin, ProjectManager">
+					<AuthorizeView Roles="Admin">
 						<NavLink class="nav-link" href="/overview" Match="NavLinkMatch.All">
 							<i class="bi bi-card-heading"></i>
-							<span>Overview</span>
+							<span>Admin Overview</span>
+						</NavLink>
+					</AuthorizeView>
+					<AuthorizeView Roles="ProjectManager, Developer, Submitter">
+						<NavLink class="nav-link" href="/myprojects" Match="NavLinkMatch.All">
+							<i class="bi bi-card-heading"></i>
+							<span>My Projects</span>
 						</NavLink>
 					</AuthorizeView>
 				</li>

@@ -37,6 +37,6 @@ namespace BlazorAuthTemplate.Client.Services.Interfaces
 
 		Task AddDeveloperToTicket(int projectId, int ticketId, string userId, string managerId);
 
-		Task RemoveDeveloperFromProject(int ticketId, string userId, string managerId);
+		Task RemoveDeveloperFromTicket(int ticketId, string userId, string managerId);
 	}
 }

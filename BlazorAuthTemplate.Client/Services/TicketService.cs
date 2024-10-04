@@ -210,7 +210,7 @@ namespace BlazorAuthTemplate.Client.Services
 			}
 		}
 
-		public async Task RemoveDeveloperFromProject(int ticketId, string userId, string managerId)
+		public async Task RemoveDeveloperFromTicket(int ticketId, string userId, string managerId)
 		{
 			try
 			{

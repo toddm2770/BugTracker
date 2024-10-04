@@ -25,9 +25,9 @@ namespace BlazorAuthTemplate.Data
 
         public virtual Company? Company { get; set; }
 
-        ICollection<Project>? Projects { get; set; }
+        public ICollection<Project>? Projects { get; set; }
 
-        public virtual ICollection<TicketComment> Comments { get; set; } = new HashSet<TicketComment>();
+        public virtual ICollection<TicketComment>? Comments { get; set; }
     }
 
 	public static class ApplicationUserExtension
@@ -44,5 +44,4 @@ namespace BlazorAuthTemplate.Data
 			};
 		}
 	}
-
 }

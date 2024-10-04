@@ -306,7 +306,7 @@ namespace BlazorAuthTemplate.Controllers
 
 			try
 			{
-				await _ticketsService.RemoveDeveloperFromProject(ticketId, userId, managerId);
+				await _ticketsService.RemoveDeveloperFromTicket(ticketId, userId, managerId);
 			}
 			catch (Exception ex)
 			{

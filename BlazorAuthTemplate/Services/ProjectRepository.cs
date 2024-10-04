@@ -94,27 +94,29 @@ namespace BlazorAuthTemplate.Services
 			using IServiceScope scope = svcProvider.CreateScope();
 			UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-			ApplicationUser? admin = await context.Users.FindAsync(adminId);
-			if (admin is null) return;
+			ApplicationUser? admin = await userManager.FindByIdAsync(adminId);
+			if (admin == null) return;
 
-			bool isAdmin = admin is not null && await userManager.IsInRoleAsync(admin, nameof(Roles.Admin));
-			bool isPM = admin is not null && await userManager.IsInRoleAsync(admin, nameof(Roles.ProjectManager));
+			bool isAdmin = await userManager.IsInRoleAsync(admin, nameof(Roles.Admin));
+			bool isPm = admin is not null && await userManager.IsInRoleAsync(admin, nameof(Roles.ProjectManager));
 
-			if (isAdmin == true || (isPM == true && userId == adminId))
+			if (isAdmin == true || (isPm == true && userId == adminId))
 			{
 				ApplicationUser? projectManager = await context.Users.FindAsync(userId);
 
-				if (projectManager is not null && projectManager.CompanyId == admin!.CompanyId && await userManager.IsInRoleAsync(projectManager, nameof(Roles.ProjectManager)))
+				if (projectManager != null
+					&& projectManager.CompanyId == admin!.CompanyId
+					&& await userManager.IsInRoleAsync(projectManager, nameof(Roles.ProjectManager)))
 				{
 					await RemoveProjectManagerAsync(projectId, adminId);
 
 					Project? project = await context.Projects
-													.Include(p => p.Members)
-													.FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == admin.CompanyId);
+						.Include(p => p.Members)
+						.FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == admin.CompanyId);
 
 					if (project != null)
 					{
-						project.Members!.Add(projectManager);
+						project.Members.Add(projectManager);
 						await context.SaveChangesAsync();
 					}
 				}

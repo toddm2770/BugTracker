@@ -47,5 +47,7 @@ namespace BlazorAuthTemplate.Client.Models
         public ICollection<UserDTO>? Members { get; set; } = [];
 
         public ICollection<TicketDTO>? Tickets { get; set; } = [];
-    }
+
+		public ICollection<ProjectDTO>? Projects { get; set; }
+	}
 }
