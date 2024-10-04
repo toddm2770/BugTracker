@@ -714,10 +714,11 @@
 
 			projectMembers = await ProjectService.GetProjectMembersAsync(projectId, companyId);
 
-			if (SelectedProject != null && SelectedProject.Tickets != null && userInfo.Roles != null && !userInfo.Roles.Contains("Developer")
-			|| SelectedProject != null && SelectedProject.Tickets != null && userInfo.Roles != null && !userInfo.Roles.Contains("Submitter"))
+			if (SelectedProject != null && SelectedProject.Tickets != null && userInfo.Roles != null && !userInfo.Roles.Contains("Submitter") && !userInfo.Roles.Contains("Developer"))
 			{
 				var activeTicket = SelectedProject.Tickets.FirstOrDefault(t => !t.IsArchived);
+
+				projectMembers = await ProjectService.GetProjectMembersAsync(SelectedProject.Id, companyId);
 
 				if (activeTicket != null)
 				{
@@ -731,6 +732,10 @@
 						SelectedTicket = await TicketService.GetTicketByIdAsync(archivedTicket.Id, companyId);
 					}
 				}
+			}
+			else
+			{
+				SelectedTicket = null;
 			}
 
 			selectedMemberId = "";

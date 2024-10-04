@@ -25,7 +25,7 @@
 							<h4 class="text-white">Active Projects</h4>
 						</div>
 						<div class="col-6 text-end">
-							@if (userInfo != null && userInfo.Roles != null && (userInfo.Roles.Contains("Admin") || userInfo.Roles.Contains("ProjectManager")))
+							@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
 							{
 								<button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectModal">
 									Add Project
@@ -98,7 +98,7 @@
 							@if (SelectedProject != null)
 							{
 								<div class="mt-2 hstack">
-									@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin") || userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager"))
+									@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
 									{
 										<button type="button" class="btn btn-outline-success rounded-pill" data-toggle="tooltip" title="Add member to selected project" data-bs-toggle="modal" data-bs-target="#addMembersModal">
 											Add Member
@@ -189,8 +189,7 @@
 										<h4 class="text-white">Active Tickets</h4>
 									</div>
 
-									@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin")
-														|| userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager"))
+									@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
 									{
 										<div class="col-6 text-end">
 											<button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addTicketModal">
@@ -238,7 +237,7 @@
 							@if (SelectedTicket != null && userInfo != null)
 							{
 								<div class="mt-2 text-start hstack">
-									@if (userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager") || userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
+									@if (userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
 									{
 										<button class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addTicketDeveloperModal">
 											Add Developer
@@ -251,10 +250,7 @@
 											</button>
 										}
 									}
-									@if (SelectedTicket != null && SelectedTicket.SubmitterUser != null && userInfo.UserId == SelectedTicket.SubmitterUser.Id
-														|| SelectedTicket != null && SelectedTicket.DeveloperUser != null && userInfo.UserId == SelectedTicket.DeveloperUser.Id
-														|| SelectedTicket != null && userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin")
-														|| SelectedTicket != null && userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager"))
+									@if (SelectedTicket != null && userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
 									{
 										<button class="btn btn-outline-warning rounded-pill ms-2" data-bs-toggle="modal" data-bs-target="#editTicketModal">
 											Edit Ticket
@@ -291,8 +287,11 @@
 									<p>Submitter: @SelectedTicket.SubmitterUser?.FullName</p>
 
 									<p>Add Ticket Attachment:</p>
-									<TicketAttachmentForm TicketId="SelectedTicket.Id" />
-									<TicketCommentArea TicketId="SelectedTicket.Id" CompanyId="userInfo.CompanyId" Comments="SelectedTicket.TicketComments" />
+									@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
+									{
+										<TicketAttachmentForm TicketId="SelectedTicket.Id" />
+										<TicketCommentArea TicketId="SelectedTicket.Id" CompanyId="userInfo.CompanyId" Comments="SelectedTicket.TicketComments" />
+									}
 								}
 							}
 						</div>

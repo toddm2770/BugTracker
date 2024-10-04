@@ -16,14 +16,20 @@
 					</NavLink>
 					<AuthorizeView Roles="Admin">
 						<NavLink class="nav-link" href="/overview" Match="NavLinkMatch.All">
-							<i class="bi bi-card-heading"></i>
+							<i class="bi bi-building"></i>
 							<span>Admin Overview</span>
 						</NavLink>
 					</AuthorizeView>
 					<AuthorizeView Roles="ProjectManager, Developer, Submitter">
+						<NavLink class="nav-link" href="/overview" Match="NavLinkMatch.All">
+							<i class="bi bi-boxes"></i>
+							<span>All Project/Tickets</span>
+						</NavLink>
+					</AuthorizeView>
+					<AuthorizeView Roles="ProjectManager, Developer, Submitter">
 						<NavLink class="nav-link" href="/myprojects" Match="NavLinkMatch.All">
-							<i class="bi bi-card-heading"></i>
-							<span>My Projects</span>
+							<i class="bi bi-box-seam"></i>
+							<span>My Projects/Tickets</span>
 						</NavLink>
 					</AuthorizeView>
 				</li>

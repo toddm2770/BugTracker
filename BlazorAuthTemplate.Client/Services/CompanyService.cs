@@ -12,7 +12,7 @@ namespace BlazorAuthTemplate.Client.Services
 		{
 			_httpClient = httpClient;
 		}
-		public async Task AddUserToRoleAsync(string userId, string roleName, string adminId)
+		public Task AddUserToRoleAsync(string userId, string roleName, string adminId)
 		{
 			throw new NotImplementedException();
 		}
