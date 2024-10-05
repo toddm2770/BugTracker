@@ -26,6 +26,12 @@
 							<span>Admin Overview</span>
 						</NavLink>
 					</AuthorizeView>
+					<AuthorizeView Roles="Admin">
+						<NavLink class="nav-link" href="/editcompany" Match="NavLinkMatch.All">
+							<i class="bi bi-pencil"></i>
+							<span>Edit Company</span>
+						</NavLink>
+					</AuthorizeView>
 					<AuthorizeView Roles="ProjectManager, Developer, Submitter">
 						<NavLink class="nav-link" href="/overview" Match="NavLinkMatch.All">
 							<i class="bi bi-boxes"></i>
@@ -58,7 +64,6 @@
 
 								<li class="nav-item">
 									<NavLink class="nav-link" href="Account/Manage">
-										<img src="@profilePicture" class="profile-picture" />
 										@firstName @lastName
 									</NavLink>
 								</li>

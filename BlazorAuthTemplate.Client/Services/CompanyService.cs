@@ -98,9 +98,18 @@ namespace BlazorAuthTemplate.Client.Services
 			}
 		}
 
-		public Task UpdateCompanyAsync(CompanyDTO company, string adminId)
+		public async Task UpdateCompanyAsync(CompanyDTO company, string adminId)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/company/update/{company}", adminId);
+				response.EnsureSuccessStatusCode();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
 		}
 
 		public async Task UpdateUserRoleAsync(UserDTO user, string adminId)

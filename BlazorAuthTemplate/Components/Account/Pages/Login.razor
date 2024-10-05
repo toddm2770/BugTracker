@@ -57,10 +57,10 @@
 						</p>
 					</div>
 				</EditForm>
-				<div class="card">
+				<div class="card bg-1000">
 					<div class="card-body">
-						<h3 class="card-title">Log in as a Demo User</h3>
-						<p>Click one of the buttons below to log in with a demo account</p>
+						<h3 class="card-title text-white">Log in as a Demo User</h3>
+						<p class="text-white">Click one of the buttons below to log in with a demo account</p>
 						<EditForm id="demo-account" Model="Input" method="post" OnSubmit="LoginDemoUser" FormName="demo">
 							<div class="vstack text-center gap-2 px-3">
 								<button class="btn btn-outline-success" type="submit" name="Input.DemoRole" value="@Roles.Admin">

@@ -5,7 +5,7 @@ namespace BlazorAuthTemplate.Client.Helpers
 	public static class ImageHelper
 	{
 		public static readonly string DefaultProfilePicture = "/image/ProfileImage.jpg";
-		public static readonly string DefaultCompanyImage = "/image/business-placeholder.svg";
+		public static readonly string DefaultCompanyImage = "/image/DemoCompanyImage.svg";
 		public static readonly string DefaultProjectImage = "/image/DefaultProjectImage.png";
 		public static int MaxFileSize = 5 * 1024 * 1024;
 

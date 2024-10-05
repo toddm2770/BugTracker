@@ -114,9 +114,12 @@ namespace BlazorAuthTemplate.Services
 			return companyUsers;
 		}
 
-		public Task UpdateCompanyAsync(Company company, string adminId)
+		public async Task UpdateCompanyAsync(Company company, string adminId)
 		{
-			throw new NotImplementedException();
+			using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+			context.Update(company);
+			await context.SaveChangesAsync();
 		}
 	}
 }

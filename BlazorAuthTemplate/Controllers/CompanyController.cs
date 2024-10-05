@@ -28,7 +28,7 @@ namespace BlazorAuthTemplate.Controllers
 		}
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<CompanyDTO>> GetCompany([FromRoute]int id)
+		public async Task<ActionResult<CompanyDTO>> GetCompany([FromRoute] int id)
 		{
 			CompanyDTO? company = await _companyService.GetCompanyByIdAsync(CompanyId);
 
@@ -71,7 +71,7 @@ namespace BlazorAuthTemplate.Controllers
 		}
 
 		[HttpGet("{roleName}")]
-		public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetUsersInRole([FromRoute]string roleName)
+		public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetUsersInRole([FromRoute] string roleName)
 		{
 			try
 			{
@@ -121,6 +121,21 @@ namespace BlazorAuthTemplate.Controllers
 			try
 			{
 				await _companyService.CreateAdmin(userId, companyId);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		[HttpPut("update/{company}")]
+		public async Task<ActionResult> UpdateProject([FromRoute] CompanyDTO company, [FromBody] string adminId)
+		{
+			try
+			{
+				await _companyService.UpdateCompanyAsync(company, adminId);
 				return Ok();
 			}
 			catch (Exception ex)

@@ -48,9 +48,16 @@ namespace BlazorAuthTemplate.Services
 			return userDTOs;
 		}
 
-		public Task UpdateCompanyAsync(CompanyDTO company, string adminId)
+		public async Task UpdateCompanyAsync(CompanyDTO company, string adminId)
 		{
-			throw new NotImplementedException();
+			Company? originalCompany = await _repository.GetCompanyByIdAsync(company.Id);
+
+			if (originalCompany == null) { return; }
+
+			originalCompany.Name = company.Name;
+			originalCompany.Description = company.Description;
+
+			await _repository.UpdateCompanyAsync(originalCompany, adminId);
 		}
 
 		public async Task<IEnumerable<UserDTO>> GetCompanyMembersAsync(int companyId)

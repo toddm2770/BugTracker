@@ -1,0 +1,123 @@
+﻿@page "/editcompany"
+
+@rendermode InteractiveServer
+
+@inject ICompanyService CompanyService
+@inject IJSRuntime JS
+
+
+<div class="bg-1100 h-100 d-flex justify-content-center align-items-center">
+	@if (companyForm != null)
+	{
+		<div class="container h-100 d-flex justify-content-center align-items-center mb-3">
+			<div class="card bg-1000">
+				<h3 class="text-white text-center">Edit Company</h3>
+				<EditForm Model="companyForm" OnValidSubmit="UpdateCompany" FormName="EditCompanyForm" class="m-3">
+					<div class="mb-2">
+						<label class="form-label text-white">Name</label>
+						<InputText class="form-control" @bind-Value="companyForm.Name" />
+						<ValidationMessage For="() => companyForm.Name" />
+					</div>
+					<div class="mb-2">
+						<label class="form-label text-white">Description</label>
+						<InputTextArea class="form-control" @bind-Value="companyForm.Description" />
+						<ValidationMessage For="() => companyForm.Description" />
+					</div>
+					<button class="btn btn-outline-success" type="submit">
+						Save
+					</button>
+					<button @onclick="() => CancelEdit()" class="btn btn-outline-warning">
+						Reset
+					</button>
+				</EditForm>
+			</div>
+		</div>
+	}
+</div>
+
+<!-- Changes Saved Modal -->
+<div class="modal fade" id="changesSavedModal" tabindex="-1" aria-labelledby="changesSavedModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="changesSavedModalLabel">Changes Saved</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				Your changes have been successfully saved.
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+@code {
+
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	private UserInfo? userInfo;
+
+	private CompanyDTO? company;
+
+	private CompanyDTO? companyForm;
+
+	private CompanyDTO? clonedCompany;
+
+	protected override async Task OnInitializedAsync()
+	{
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+		if (userInfo != null)
+		{
+			company = await CompanyService.GetCompanyByIdAsync(userInfo.CompanyId);
+
+			if (company != null)
+			{
+				companyForm = CloneCompany(company);
+
+				clonedCompany = CloneCompany(company);
+			}
+		}
+
+	}
+
+	private void CancelEdit()
+	{
+		companyForm = clonedCompany;
+	}
+
+	private CompanyDTO CloneCompany(CompanyDTO company)
+	{
+		return new CompanyDTO
+			{
+				Id = company.Id,
+				Name = company.Name,
+				Description = company.Description,
+				CompanyImageUrl = company.CompanyImageUrl,
+				Projects = company.Projects,
+				Members = company.Members,
+				Invites = company.Invites,
+			};
+	}
+
+	private async Task UpdateCompany()
+	{
+		if(company != null && companyForm != null && userInfo != null)
+		{
+			company.Name = companyForm.Name;
+			company.Description = companyForm.Description;
+
+			await CompanyService.UpdateCompanyAsync(company, userInfo.UserId);
+
+			await JS.InvokeVoidAsync("openChangesSavedModal");
+
+			StateHasChanged();
+		}
+	}
+
+}
