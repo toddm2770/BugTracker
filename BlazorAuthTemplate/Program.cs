@@ -50,6 +50,9 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+//builder.Services.AddSingleton<IEmailSender<ApplicationUser>, EmailService>();
+//builder.Services.AddSingleton<IEmailSender, EmailService>();
+
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
