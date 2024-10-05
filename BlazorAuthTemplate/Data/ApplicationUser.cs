@@ -39,7 +39,6 @@ namespace BlazorAuthTemplate.Data
                 Id = applicationUser.Id,
 				FirstName = applicationUser.FirstName,
 				LastName = applicationUser.LastName,
-                Role = applicationUser.Role,
 				Email = applicationUser.Email,
                 CompanyId = applicationUser.CompanyId,
 			};
