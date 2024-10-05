@@ -15,6 +15,12 @@
 						<span>Home</span>
 					</NavLink>
 					<AuthorizeView Roles="Admin">
+						<NavLink class="nav-link" href="/company/invite" Match="NavLinkMatch.All">
+							<i class="bi bi-person-plus"></i>
+							<span>Add Company Member</span>
+						</NavLink>
+					</AuthorizeView>
+					<AuthorizeView Roles="Admin">
 						<NavLink class="nav-link" href="/overview" Match="NavLinkMatch.All">
 							<i class="bi bi-building"></i>
 							<span>Admin Overview</span>

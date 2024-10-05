@@ -1,0 +1,103 @@
+﻿@page "/company/invite"
+@using Microsoft.AspNetCore.Authorization
+
+@inject IInviteDTOService InviteService
+@inject IProjectService ProjectService
+@inject NavigationManager Nav
+
+@attribute [Authorize(Roles = nameof(Roles.Admin))]
+
+@rendermode InteractiveServer
+<div class="bg-1100 h-100 w-100 d-flex align-items-center justify-content-center" style="min-height: 100vh; min-width: 100vw">
+    <div class="container d-flex justify-content-center">
+        <div class="card bg-1000" style="width: 400px;">
+            <div class="m-2">
+                <h3 class="text-white text-center">Invite</h3>
+                <EditForm Model="invite" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label text-white">First Name</label>
+                            <InputText @bind-Value="invite.InviteeFirstName" class="form-control" />
+                            <ValidationMessage For="() => invite.InviteeFirstName" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-white">Last Name</label>
+                            <InputText @bind-Value="invite.InviteeLastName" class="form-control" />
+                            <ValidationMessage For="() => invite.InviteeLastName" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-white">Email Address</label>
+                            <InputText @bind-Value="invite.InviteeEmail" class="form-control" />
+                            <ValidationMessage For="() => invite.InviteeEmail" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-white">Project</label>
+                            <InputSelect @bind-Value="invite.ProjectId" class="form-select">
+                                <option value="">Select a Project</option>
+                                @foreach (var project in projects)
+                                {
+                                    <option value="@project.Id">@project.Name</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => invite.ProjectId" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-white">Invite Message</label>
+                            <InputTextArea @bind-Value="invite.Message" class="form-control" />
+                            <ValidationMessage For="() => invite.Message" />
+                        </div>
+                        <div class="text-end">
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <span class="text-danger">@errorMessage</span>
+                            }
+                            <button class="btn btn-primary" type="submit">Invite</button>
+                            <ValidationSummary />
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+	private InviteDTO invite = new InviteDTO();
+	private IEnumerable<ProjectDTO> projects = [];
+	private string? errorMessage;
+
+	[CascadingParameter]
+	public Task<AuthenticationState>? AuthStateTask { get; set; }
+	private UserInfo? userInfo;
+
+	protected override async Task OnInitializedAsync()
+	{
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+		invite.InvitorId = userInfo!.UserId;
+		invite.InviteDate = DateTime.Now;
+
+		// get all non-archived projects...
+		projects = await ProjectService.GetAllProjectsAsync(userInfo!.CompanyId);
+	}
+
+	private async Task HandleSubmit()
+	{
+		try
+		{
+			errorMessage = null;
+
+			await InviteService.AddInviteAsync(invite);
+
+			Nav.NavigateTo("/");
+		}
+		catch (Exception ex) when (ex is not NavigationException)
+		{
+			errorMessage = "An error occurred while inviting the user.";
+		}
+	}
+}

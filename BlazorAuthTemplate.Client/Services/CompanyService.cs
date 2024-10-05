@@ -17,6 +17,31 @@ namespace BlazorAuthTemplate.Client.Services
 			throw new NotImplementedException();
 		}
 
+		public async Task CreateAdmin(string userId, int companyId)
+		{
+			HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"/api/companies/admin/{userId}", companyId);
+			response.EnsureSuccessStatusCode();
+		}
+
+		public async Task<CompanyDTO> CreateCompanyAsync(CompanyDTO company)
+		{
+			try
+			{
+				HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/companies/create", company);
+				response.EnsureSuccessStatusCode();
+
+				CompanyDTO? createdCompany = await response.Content.ReadFromJsonAsync<CompanyDTO>();
+
+				return createdCompany!;
+
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
 		public async Task<CompanyDTO?> GetCompanyByIdAsync(int id)
 		{
 			try
@@ -36,7 +61,7 @@ namespace BlazorAuthTemplate.Client.Services
 			{
 				IEnumerable<UserDTO> members = await _httpClient.GetFromJsonAsync<IEnumerable<UserDTO>>($"api/company/members");
 				return members ?? Enumerable.Empty<UserDTO>();
-				
+
 			}
 			catch (Exception ex)
 			{

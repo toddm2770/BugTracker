@@ -16,5 +16,9 @@ namespace BlazorAuthTemplate.Services.Interfaces
 		Task AddUserToRoleAsync(string userId, string roleName, string adminId);
 
 		Task UpdateCompanyAsync(Company company, string adminId);
+
+		Task<Company> CreateCompanyAsync(Company company);
+
+		Task CreateAdmin(string userId, int companyId);
 	}
 }

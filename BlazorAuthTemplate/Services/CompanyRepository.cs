@@ -40,6 +40,38 @@ namespace BlazorAuthTemplate.Services
 			}
 		}
 
+		public async Task<Company> CreateCompanyAsync(Company company)
+		{
+			using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+			context.Companies.Add(company);
+
+			try
+			{
+				await context.SaveChangesAsync();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+
+			return company;
+		}
+
+		public async Task CreateAdmin(string userId, int companyId)
+		{
+			using IServiceScope scope = svcProvider.CreateScope();
+			UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+			ApplicationUser? user = await userManager.FindByIdAsync(userId);
+
+			if (user != null)
+			{
+				await userManager.AddToRoleAsync(user, "Admin");
+			}
+		}
+
 		public async Task<Company?> GetCompanyByIdAsync(int id)
 		{
 			using ApplicationDbContext context = contextFactory.CreateDbContext();

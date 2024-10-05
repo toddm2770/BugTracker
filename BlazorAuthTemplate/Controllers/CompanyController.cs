@@ -99,5 +99,35 @@ namespace BlazorAuthTemplate.Controllers
 				throw;
 			}
 		}
+
+		[HttpPost("create")]
+		public async Task<ActionResult<CompanyDTO>> CreateCompany([FromBody] CompanyDTO company)
+		{
+			try
+			{
+				CompanyDTO createdCompany = await _companyService.CreateCompanyAsync(company);
+				return createdCompany;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
+
+		[HttpPut("admin/{userId}")]
+		public async Task<ActionResult> CreateAdmin([FromRoute] string userId, [FromBody] int companyId)
+		{
+			try
+			{
+				await _companyService.CreateAdmin(userId, companyId);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
 	}
 }

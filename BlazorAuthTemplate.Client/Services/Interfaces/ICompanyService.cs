@@ -17,5 +17,9 @@ namespace BlazorAuthTemplate.Client.Services.Interfaces
 		Task<IEnumerable<UserDTO>> GetCompanyMembersAsync(int companyId);
 
 		Task UpdateUserRoleAsync(UserDTO user, string adminId);
+
+		Task<CompanyDTO> CreateCompanyAsync(CompanyDTO company);
+
+		Task CreateAdmin(string userId, int companyId);
 	}
 }

@@ -62,6 +62,9 @@ builder.Services.AddScoped<ITicketRespository, TicketRepository>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 
+builder.Services.AddScoped<IInviteRepository, InviteRepository>();
+builder.Services.AddScoped<IInviteDTOService, InviteDTOService>();
+
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, GoogleEmailService>();
 builder.Services.AddSingleton<IEmailSender, GoogleEmailService>();

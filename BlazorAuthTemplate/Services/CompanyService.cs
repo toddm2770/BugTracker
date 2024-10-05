@@ -76,5 +76,31 @@ namespace BlazorAuthTemplate.Services
 
 			await _repository.AddUserToRoleAsync(user.Id, user.Role, adminId);
 		}
+
+		public async Task<CompanyDTO> CreateCompanyAsync(CompanyDTO company)
+		{
+			Company newCompany = new()
+			{
+				Name = company.Name,
+				Description = company.Description,
+			};
+
+			newCompany = await _repository.CreateCompanyAsync(newCompany);
+
+			return newCompany.ToDTO();
+		}
+
+		public async Task CreateAdmin(string userId, int companyId)
+		{
+			try
+			{
+				await _repository.CreateAdmin(userId, companyId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
 	}
 }

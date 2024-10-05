@@ -10,7 +10,7 @@ namespace BlazorAuthTemplate.Models
         public int Id { get; set; }
 
         [Required]
-        public string? Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public string? Description { get; set; }
 
@@ -18,11 +18,11 @@ namespace BlazorAuthTemplate.Models
 
         public virtual FileUpload? Image { get; set; }
 
-        public virtual ICollection<Project> Projects { get; set; } = [];
+        public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 
-        public virtual ICollection<ApplicationUser> Members { get; set; } = [];
+        public virtual ICollection<ApplicationUser> Members { get; set; } = new List<ApplicationUser>();
 
-        public virtual ICollection<Invite> Invites { get; set; } = [];
+        public virtual ICollection<Invite> Invites { get; set; } = new List<Invite>();
     }
 
     public static class CompanyExtension
