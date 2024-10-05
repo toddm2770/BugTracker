@@ -23,8 +23,6 @@ namespace BlazorAuthTemplate.Data
         [Required]
         public int CompanyId { get; set; }
 
-		public string? Role { get; set; }
-
 		public virtual Company Company { get; set; } = new Company();
 
         public ICollection<Project>? Projects { get; set; }
