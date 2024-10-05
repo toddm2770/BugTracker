@@ -1,0 +1,1036 @@
+﻿@page "/myprojects"
+
+@rendermode InteractiveAuto
+
+@inject IProjectService ProjectService
+@inject ICompanyService CompanyService
+@inject ITicketService TicketService
+@inject IJSRuntime JS
+
+<div id="blazor-error-ui">
+	An unhandled error has occurred.
+	<a href="" class="reload">Reload</a>
+	<a class="dismiss">🗙</a>
+</div>
+
+@if (userInfo != null)
+{
+	<div class="container-fluid bg-900 h-100">
+		<div class="row">
+			<div class="col-12 col-md-3">
+				@*Active Projects Start*@
+				<div class="card bg-1000 mx-3 my-3 p-3 scrollable-content" style="height: 40vh; overflow-y: auto;">
+					<div class="row mb-2">
+						<div class="col-6">
+							<h4 class="text-white">Active Projects</h4>
+						</div>
+						<div class="col-6 text-end">
+							@if (userInfo != null && userInfo.Roles != null && (userInfo.Roles.Contains("Admin") || userInfo.Roles.Contains("ProjectManager")))
+							{
+								<button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+									Add Project
+								</button>
+							}
+						</div>
+					</div>
+					<div class="row g-3">
+						@foreach (var project in projects)
+						{
+							<div class="col-6">
+								<button @onclick="() => SelectProject(project.Id)" class="btn card card-custom-bg rounded" style="width: 100%; height: 8rem;">
+									<div class="card-body pt-0">
+										<h5 class="card-title text-dark">
+											@project.Name
+										</h5>
+										@if (members != null && project.Members != null)
+										{
+											<h6 class="text-dark">@project.Members.Count() Members</h6>
+										}
+										@if (project.Tickets != null)
+										{
+											<h6 class="text-dark">@project.Tickets.Count() Tickets</h6>
+										}
+									</div>
+								</button>
+							</div>
+						}
+					</div>
+				</div>
+				@*Active Projects End*@
+
+
+				@*Acrchived Projects Start*@
+				<div class="card bg-1000 mx-3 my-3 p-3 scrollable-content" style="height: 40vh; overflow-y: auto;">
+					<h4 class="text-white">Archived Projects</h4>
+					<div class="row g-3">
+						@foreach (var project in archivedProjects)
+						{
+							<div class="col-6">
+								<button @onclick="() => SelectProject(project.Id)" class="btn card card-custom-bg-2 rounded" style="width: 100%; height: 8rem;">
+									<div class="card-body pt-0">
+										<h5 class="card-title text-dark">
+											@project.Name
+										</h5>
+										@if (project.Members != null && project.Members != null)
+										{
+											<h6 class="text-dark">@project.Members.Count() Members</h6>
+										}
+										@if (project.Tickets != null)
+										{
+											<h6 class="text-dark">@project.Tickets.Count() Tickets</h6>
+										}
+									</div>
+								</button>
+							</div>
+						}
+					</div>
+				</div>
+				@*Archived Projects End*@
+			</div>
+
+
+			<div class="col-12 col-md-9 mt-3">
+				<div class="row g-3">
+
+					@*Selected Project Details Start*@
+					<div class="col-12 col-md-6">
+						<div class="card bg-dark scrollable-content" style="height: 81.5vh; overflow-y: auto; padding-right: .5rem; padding-left: 1rem">
+							@if (SelectedProject != null)
+							{
+								<div class="mt-2 hstack">
+									@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin") || userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager"))
+									{
+										<button type="button" class="btn btn-outline-success rounded-pill" data-toggle="tooltip" title="Add member to selected project" data-bs-toggle="modal" data-bs-target="#addMembersModal">
+											Add Member
+										</button>
+
+										<button type="button" class="btn btn-outline-danger ms-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#removeMembersModal">
+											Remove Member
+										</button>
+
+										<button type="button" class="btn btn-outline-warning ms-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#editProjectModal">
+											Edit Project
+										</button>
+
+										if (userInfo != null && userInfo.Roles.Contains("Admin"))
+										{
+											<button type="button" class="btn btn-outline-warning ms-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#editMemberRoleModal">
+												Edit Member Role
+											</button>
+										}
+
+										@if (SelectedProject.IsArchived == false)
+										{
+											<button class="btn btn-outline-danger ms-2 rounded-pill" @onclick="() => ArchiveProject(SelectedProject.Id)">
+												Archive Project
+											</button>
+										}
+
+										@if (SelectedProject.IsArchived == true)
+										{
+											<button class="btn btn-outline-success ms-2 rounded-pill" @onclick="() => RestoreProject(SelectedProject.Id)">
+												Restore Project
+											</button>
+										}
+									}
+								</div>
+
+								<h3 class="text-white mt-1">@SelectedProject.Name</h3>
+								<p class="text-white">Description: @SelectedProject.Description</p>
+								<p class="text-white">Created: @SelectedProject.Created.ToLocalTime().ToString("g")</p>
+								<p class="text-white">Start Date: @SelectedProject.StartDate.ToLocalTime().ToString("MM/dd/yyyy")</p>
+								<p class="text-white">End Date:@SelectedProject.EndDate.ToLocalTime().ToString("MM/dd/yyyy")</p>
+								<p class="text-white">Priority: @SelectedProject.Priority</p>
+
+								@if (projectMembers != null)
+								{
+									<div class="hstack align-items-center">
+										<p class="text-white mb-0" style="line-height: 1.5;">
+											Project Manager:
+											@{
+												var projectManager = projectMembers
+												.Where(m => m.Role != null && m.Role.Contains("ProjectManager"))
+												.FirstOrDefault();
+											}
+
+											@if (projectManager != null)
+											{
+												@projectManager.FullName
+											}
+										</p>
+									</div>
+								}
+
+								@if (projectMembers != null)
+								{
+									<p class="text-white">
+										Members:
+										@string.Join(" | ", projectMembers.Where(m => m.Role != null && !m.Role.Contains("ProjectManager")).Select(member => $"{member.FullName}, {member.Role}"))
+									</p>
+
+								}
+
+								<div class="row mb-2">
+									<div class="col-6">
+										<h4 class="text-white">Active Tickets</h4>
+									</div>
+
+									@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin")
+														|| userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager")
+														|| userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Submitter"))
+									{
+										<div class="col-6 text-end">
+											<button type="button" class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addTicketModal">
+												Add Ticket
+											</button>
+										</div>
+									}
+								</div>
+								@if (SelectedProject.Tickets != null)
+								{
+									@if (userInfo != null && userInfo.Roles != null)
+									{
+										IEnumerable<TicketDTO> filteredTickets;
+
+										if (userInfo.Roles.Contains("ProjectManager") || userInfo.Roles.Contains("Admin"))
+										{
+											filteredTickets = SelectedProject.Tickets.Where(t => !t.IsArchived);
+										}
+										else if (userInfo.Roles.Contains("Submitter"))
+										{
+											filteredTickets = SelectedProject.Tickets.Where(t => !t.IsArchived && t.SubmitterUserId == userInfo.UserId);
+										}
+										else if (userInfo.Roles.Contains("Developer"))
+										{
+											filteredTickets = SelectedProject.Tickets.Where(t => !t.IsArchived && t.DeveloperUserId == userInfo.UserId);
+										}
+										else
+										{
+											filteredTickets = Enumerable.Empty<TicketDTO>();
+										}
+										foreach (var ticket in filteredTickets)
+										{
+											<button @onclick="() => SelectTicket(ticket.Id)" class="btn card card-custom-bg mb-1 rounded-pill text-white" style="width: 100%; height: 4rem;">
+												<h4 class="text-dark">@ticket.Title</h4>
+												@if (ticket.TicketComments != null)
+												{
+													<p class="text-dark">Comments: @ticket.TicketComments.Count() | Priority: @ticket.Priority | Type: @ticket.Type | Status: @ticket.Status</p>
+												}
+											</button>
+										}
+									}
+								}
+
+								<h4 class="text-white mt-3">Archived Tickets</h4>
+
+								@if (SelectedProject.Tickets != null)
+								{
+									@if (userInfo != null && userInfo.Roles != null)
+									{
+										IEnumerable<TicketDTO> filteredArchivedTickets;
+
+										if (userInfo.Roles.Contains("ProjectManager") || userInfo.Roles.Contains("Admin"))
+										{
+											filteredArchivedTickets = SelectedProject.Tickets.Where(t => t.IsArchived);
+										}
+										else if (userInfo.Roles.Contains("Submitter"))
+										{
+											filteredArchivedTickets = SelectedProject.Tickets.Where(t => t.IsArchived && t.SubmitterUserId == userInfo.UserId);
+										}
+										else if (userInfo.Roles.Contains("Developer"))
+										{
+											filteredArchivedTickets = SelectedProject.Tickets.Where(t => t.IsArchived && t.DeveloperUserId == userInfo.UserId);
+										}
+										else
+										{
+											filteredArchivedTickets = Enumerable.Empty<TicketDTO>();
+										}
+										foreach (var ticket in filteredArchivedTickets)
+										{
+											<button @onclick="() => SelectTicket(ticket.Id)" class="btn card card-custom-bg-2 mb-1 text-dark rounded-pill" style="width: 100%; height: 4rem;">
+												<h4 class="text-dark">@ticket.Title</h4>
+												@if (ticket.TicketComments != null)
+												{
+													<p class="text-dark">Comments: @ticket.TicketComments.Count() | Priority: @ticket.Priority | Type: @ticket.Type | Status: @ticket.Status</p>
+												}
+											</button>
+										}
+									}
+								}
+
+							}
+						</div>
+					</div>
+					@*Selected Project Details End*@
+
+
+					@*Selected Ticket Details Start*@
+					<div class="col-12 col-md-6">
+						<div class="card bg-dark mx-2 scrollable-content text-white" style="height: 81.5vh; overflow-y: auto; padding-right: .5rem; padding-left: 1rem;">
+							@if (SelectedTicket != null && userInfo != null)
+							{
+								<div class="mt-2 text-start hstack">
+									@if (userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager") || userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
+									{
+										<button class="btn btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#addTicketDeveloperModal">
+											Add Developer
+										</button>
+
+										@if (SelectedTicket.DeveloperUserId != null)
+										{
+											<button class="btn btn-outline-danger rounded-pill ms-2" @onclick="() => RemoveTicketDeveloper(SelectedTicket.Id, SelectedTicket.DeveloperUserId)">
+												Remove Developer
+											</button>
+										}
+
+									}
+									@if (SelectedTicket != null && SelectedTicket.SubmitterUser != null && userInfo.UserId == SelectedTicket.SubmitterUser.Id
+														|| SelectedTicket != null && SelectedTicket.DeveloperUser != null && userInfo.UserId == SelectedTicket.DeveloperUser.Id
+														|| SelectedTicket != null && userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin")
+														|| SelectedTicket != null && userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager"))
+									{
+										<button class="btn btn-outline-warning rounded-pill ms-2" data-bs-toggle="modal" data-bs-target="#editTicketModal">
+											Edit Ticket
+										</button>
+									}
+
+									@if (userInfo != null && userInfo.Roles != null
+														&& (userInfo.Roles.Contains("Admin") || userInfo.Roles.Contains("ProjectManager")))
+									{
+										@if (SelectedTicket != null && SelectedTicket.IsArchived == false)
+										{
+											<button class="btn btn-outline-danger rounded-pill ms-2" @onclick="() => ArchiveTicket(SelectedTicket.Id)">
+												Archive Ticket
+											</button>
+										}
+
+										@if (SelectedTicket != null && SelectedTicket.IsArchived == true)
+										{
+											<button class="btn btn-outline-success rounded-pill ms-2" @onclick="() => RestoreTicket(SelectedTicket.Id)">
+												Restore Ticket
+											</button>
+										}
+									}
+
+
+								</div>
+								<h3 class="text-white mt-3">@SelectedTicket?.Title</h3>
+								<p>Description: @SelectedTicket?.Description</p>
+								<p>Created: @SelectedTicket?.Created.ToLocalTime().ToString("g")</p>
+								@if (SelectedTicket != null && SelectedTicket.Updated.HasValue)
+								{
+									<p>Updated: @SelectedTicket.Updated.Value.ToString("g")</p>
+								}
+								if (SelectedTicket != null && userInfo != null)
+								{
+									<p>Updated: @(SelectedTicket.Updated.HasValue ? SelectedTicket.Updated.Value.ToLocalTime().ToString("g") : "Not updated yet")</p>
+									<p>Developer: @SelectedTicket.DeveloperUser?.FullName</p>
+									<p>Submitter: @SelectedTicket.SubmitterUser?.FullName</p>
+
+									<p>Add Ticket Attachment:</p>
+									<TicketAttachmentForm TicketId="SelectedTicket.Id" />
+									<TicketCommentArea TicketId="SelectedTicket.Id" CompanyId="userInfo.CompanyId" Comments="SelectedTicket.TicketComments" />
+								}
+							}
+						</div>
+					</div>
+					@*Selected Ticket Details Start*@
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*Modals*@
+
+	@*Add Member Modal*@
+	<div class="modal fade" id="addMembersModal" tabindex="-1" aria-labelledby="addMembersModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title fs-5 text-primary" id="addMembersModal">Add Member to @SelectedProject?.Name</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row ms-3">
+						<div class="col-6">
+							<label class="form-label me-1">Developers:</label>
+							<InputSelect @bind-Value="selectedMemberId" class="me-2">
+								<option value="">Select Member</option>
+								@if (members != null)
+								{
+									foreach (var member in members.Where(m => m.Role is not null && !m.Role.Contains("Admin") && !m.Role.Contains("ProjectManager") && m.Role.Contains("Developer")))
+									{
+										if (SelectedProject != null && SelectedProject.Members != null && !SelectedProject.Members.Any(m => m.Id == member.Id))
+										{
+											<option value="@member.Id">@member.FullName</option>
+										}
+									}
+								}
+							</InputSelect>
+						</div>
+						<div class="col-6">
+							<label class="form-label me-1">Submitters:</label>
+							<InputSelect @bind-Value="selectedMemberId">
+								<option value="">SelectMember</option>
+								@if (members != null)
+								{
+									foreach (var member in members.Where(m => m.Role is not null && !m.Role.Contains("Admin") && !m.Role.Contains("ProjectManager") && m.Role.Contains("Submitter")))
+									{
+										<option value="@member.Id">@member.FullName</option>
+									}
+								}
+							</InputSelect>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					@if (SelectedProject != null && selectedMemberId != null && userInfo != null)
+					{
+						<button @onclick="() => AddMemberToProject(SelectedProject.Id, selectedMemberId, userInfo.UserId)" type="button" class="btn btn-primary">Save changes</button>
+					}
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*Add Developer to Ticket*@
+	<div class="modal fade" id="addTicketDeveloperModal" tabindex="-1" aria-labelledby="addTicketDeveloperModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title fs-5 text-primary" id="addMembersModal">Add Member to @SelectedProject?.Name</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<InputSelect @bind-Value="selectedMemberId" class="ms-3">
+						<option value="">Select Member</option>
+						@if (projectMembers != null)
+						{
+							foreach (var member in projectMembers.Where(m => m.Role is not null && !m.Role.Contains("Admin") && !m.Role.Contains("ProjectManager") && m.Role.Contains("Developer")))
+							{
+								<option value="@member.Id">@member.FullName</option>
+							}
+						}
+					</InputSelect>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					@if (SelectedProject != null && selectedMemberId != null && userInfo != null && SelectedTicket != null)
+					{
+						<button @onclick="() => AddTicketDeveloper(SelectedProject.Id, SelectedTicket.Id, selectedMemberId)" type="button" class="btn btn-primary">Save changes</button>
+					}
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*Remove Members Modal*@
+	<div class="modal fade" id="removeMembersModal" tabindex="-1" aria-labelledby="removeMembersModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title fs-5 text-danger" id="addMembersModal">Remove Member from @SelectedProject?.Name</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<InputSelect @bind-Value="selectedMemberId" class="ms-3">
+						<option value="">Select Member</option>
+						@if (projectMembers != null)
+						{
+							foreach (var member in projectMembers.Where(m => m.Role is not null && !m.Role.Contains("Admin") && !m.Role.Contains("ProjectManager")))
+							{
+								<option value="@member.Id">@member.FullName</option>
+							}
+						}
+					</InputSelect>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					@if (SelectedProject != null && selectedMemberId != null && userInfo != null)
+					{
+						<button @onclick="() => RemoveMemberFromProject(SelectedProject.Id, selectedMemberId, userInfo.UserId)" type="button" class="btn btn-primary">Save changes</button>
+					}
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*Add Project Modal*@
+	<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title fs-5 text-warning" id="addMembersModal">Add New Project</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<ProjectForm Project="new ProjectDTO()" OnSubmit="AddProject" />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*Edit Project Modal*@
+	<div class="modal fade" id="editProjectModal" tabindex="-1" aria-labelledby="editProjectModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title fs-5 text-warning" id="addMembersModal">Edit: @SelectedProject?.Name</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<ProjectForm Project="SelectedProject" OnSubmit="UpdateProject" />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*Add Ticket Modal*@
+	<div class="modal fade" id="addTicketModal" tabindex="-1" aria-labelledby="addTicketModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title fs-5 text-warning" id="addMembersModal">Add New Ticket to: @SelectedProject?.Name</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<TicketForm Ticket="newTicket" Project="SelectedProject" OnSubmit="AddTicketToProject" />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*Edit Ticket Modal*@
+	<div class="modal fade" id="editTicketModal" tabindex="-1" aria-labelledby="editTicketModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title fs-5 text-warning" id="addMembersModal">Add New Ticket to: @SelectedProject?.Name</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<TicketForm Ticket="SelectedTicket" Project="SelectedProject" OnSubmit="UpdateTicket" />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@*Edit Member Role*@
+	<div class="modal fade" id="editMemberRoleModal" tabindex="-1" aria-labelledby="editMemberRoleModal" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title fs-5 text-warning" id="addMembersModal">Add New Ticket to: @SelectedProject?.Name</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<label class="form-label">User:</label>
+					@if (members != null && userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
+					{
+						@foreach (var member in members.Where(m => m.Id != null && !m.Id.Contains(userInfo.UserId)))
+						{
+							<div class="container">
+								<p>@member.FullName</p>
+								@if (userInfo != null && userInfo.Roles != null && userInfo.Roles.Contains("Admin"))
+								{
+									<InputSelect @bind-Value="@member.Role">
+										<option value="Admin">Admin</option>
+										<option value="ProjectManager">Project Manager</option>
+										<option value="Developer">Developer</option>
+										<option value="Submitter">Submitter</option>
+										<option value="DemoUser">Demo User</option>
+									</InputSelect>
+								}
+								<hr />
+							</div>
+						}
+					}
+				</div>
+
+				<div class="modal-footer">
+					@if (members != null)
+					{
+						<button class="btn btn-sm btn-primary" @onclick="() => UpdateRole(members)">
+							Submit
+						</button>
+					}
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Changes Saved Modal -->
+	<div class="modal fade" id="changesSavedModal" tabindex="-1" aria-labelledby="changesSavedModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="changesSavedModalLabel">Changes Saved</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					Your changes have been successfully saved.
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+
+
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	private UserInfo? userInfo;
+
+	private IEnumerable<UserDTO>? members { get; set; }
+
+	private IEnumerable<UserDTO>? projectMembers { get; set; }
+
+	private IEnumerable<UserDTO>? ticketMembers { get; set; }
+
+	private IEnumerable<TicketDTO>? tickets { get; set; }
+
+	private string? selectedMemberId;
+
+	private UserDTO? selectedMember { get; set; }
+
+	private string? selectedManagerId;
+
+	private UserDTO? selectedManager { get; set; }
+
+	private UserDTO? submitterUser;
+
+	private CompanyDTO? company { get; set; }
+
+	private IEnumerable<ProjectDTO> projects = [];
+
+	private IEnumerable<ProjectDTO> archivedProjects = [];
+
+	private ProjectDTO? project { get; set; }
+
+	private ProjectDTO? SelectedProject { get; set; }
+
+	private TicketDTO? SelectedTicket { get; set; }
+
+	private TicketDTO? newTicket;
+
+	private IEnumerable<Enum>? Roles;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+			if (userInfo != null)
+			{
+				int companyId = userInfo.CompanyId;
+
+				newTicket = new();
+
+				newTicket.SubmitterUserId = userInfo.UserId;
+
+				if (SelectedProject != null)
+				{
+					newTicket.ProjectId = SelectedProject.Id;
+				}
+
+				company = await CompanyService.GetCompanyByIdAsync(companyId);
+
+				projects = await ProjectService.GetAllProjectsAsync(companyId);
+
+				projects = projects.Where(p => p.Members != null && p.Members.Any(m => m.Id == userInfo.UserId));
+
+				archivedProjects = await ProjectService.GetArchivedProjects(companyId);
+
+				archivedProjects = archivedProjects.Where(p => p.Members != null && p.Members.Any(m => m.Id == userInfo.UserId));
+
+				members = await CompanyService.GetCompanyMembersAsync(companyId);
+
+				SelectedProject = projects.FirstOrDefault();
+
+
+				if (SelectedProject != null && SelectedProject.Tickets != null && userInfo.Roles != null && !userInfo.Roles.Contains("Submitter") && !userInfo.Roles.Contains("Developer"))
+				{
+					var activeTicket = SelectedProject.Tickets.FirstOrDefault(t => !t.IsArchived);
+
+					projectMembers = await ProjectService.GetProjectMembersAsync(SelectedProject.Id, companyId);
+
+					if (activeTicket != null)
+					{
+						SelectedTicket = await TicketService.GetTicketByIdAsync(activeTicket.Id, companyId);
+					}
+					else
+					{
+						var archivedTicket = SelectedProject.Tickets.FirstOrDefault(t => t.IsArchived);
+						if (archivedTicket != null)
+						{
+							SelectedTicket = await TicketService.GetTicketByIdAsync(archivedTicket.Id, companyId);
+						}
+					}
+				}
+
+				selectedMemberId = "";
+
+			}
+		}
+		catch (Exception)
+		{
+
+			throw;
+		}
+	}
+
+	private async Task SelectProject(int projectId)
+	{
+		if (userInfo != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			SelectedProject = await ProjectService.GetProjectByCompanyId(projectId, companyId);
+
+			projectMembers = await ProjectService.GetProjectMembersAsync(projectId, companyId);
+
+			if (SelectedProject != null && SelectedProject.Tickets != null && userInfo.Roles != null && !userInfo.Roles.Contains("Submitter") && !userInfo.Roles.Contains("Developer"))
+			{
+				var activeTicket = SelectedProject.Tickets.FirstOrDefault(t => !t.IsArchived);
+
+				projectMembers = await ProjectService.GetProjectMembersAsync(SelectedProject.Id, companyId);
+
+				if (activeTicket != null)
+				{
+					SelectedTicket = await TicketService.GetTicketByIdAsync(activeTicket.Id, companyId);
+				}
+				else
+				{
+					var archivedTicket = SelectedProject.Tickets.FirstOrDefault(t => t.IsArchived);
+					if (archivedTicket != null)
+					{
+						SelectedTicket = await TicketService.GetTicketByIdAsync(archivedTicket.Id, companyId);
+					}
+				}
+			}
+			else
+			{
+				SelectedTicket = null;
+			}
+
+			selectedMemberId = "";
+
+			StateHasChanged();
+		}
+	}
+
+	private async Task SelectTicket(int ticketId)
+	{
+		if (userInfo != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			SelectedTicket = await TicketService.GetTicketByIdAsync(ticketId, companyId);
+
+			StateHasChanged();
+		}
+	}
+
+	private async Task UpdateRole(IEnumerable<UserDTO> members)
+	{
+		if (userInfo != null)
+		{
+			try
+			{
+				foreach (var member in members)
+				{
+					await CompanyService.UpdateUserRoleAsync(member, userInfo.UserId);
+				}
+
+				members = await CompanyService.GetCompanyMembersAsync(userInfo.CompanyId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+
+			await JS.InvokeVoidAsync("openChangesSavedModal");
+
+			StateHasChanged();
+		}
+	}
+
+	private async Task AddTicketDeveloper(int projectId, int ticketId, string userId)
+	{
+		if (userInfo != null)
+		{
+			string managerId = userInfo.UserId;
+
+			await TicketService.AddDeveloperToTicket(projectId, ticketId, userId, managerId);
+
+			SelectedTicket = await TicketService.GetTicketByIdAsync(ticketId, userInfo.CompanyId);
+
+			await JS.InvokeVoidAsync("openChangesSavedModal");
+
+			StateHasChanged();
+		}
+	}
+
+	private async Task RemoveTicketDeveloper(int ticketId, string userId)
+	{
+		if (userInfo != null)
+		{
+			string managerId = userInfo.UserId;
+
+			await TicketService.RemoveDeveloperFromTicket(ticketId, userId, managerId);
+
+			SelectedTicket = await TicketService.GetTicketByIdAsync(ticketId, userInfo.CompanyId);
+
+			await JS.InvokeVoidAsync("openChangesSavedModal");
+
+			StateHasChanged();
+		}
+	}
+
+	private async Task AddMemberToProject(int projectId, string userId, string managerId)
+	{
+		if (userInfo != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			await ProjectService.AddMemberToProjectAsync(projectId, userId, managerId);
+
+			if (SelectedProject != null)
+			{
+				projectMembers = await ProjectService.GetProjectMembersAsync(SelectedProject.Id, companyId);
+
+				selectedMemberId = "";
+
+				members = await CompanyService.GetCompanyMembersAsync(companyId);
+			}
+		}
+
+		await JS.InvokeVoidAsync("openChangesSavedModal");
+
+		StateHasChanged();
+	}
+
+	private async Task RemoveMemberFromProject(int projectId, string userId, string managerId)
+	{
+		if (userInfo != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			await ProjectService.RemoveMemberFromProjectAsync(projectId, userId, managerId);
+
+			if (SelectedProject != null)
+			{
+				projectMembers = await ProjectService.GetProjectMembersAsync(SelectedProject.Id, companyId);
+
+				selectedMemberId = "";
+			}
+		}
+		await JS.InvokeVoidAsync("openChangesSavedModal");
+
+		StateHasChanged();
+	}
+
+	private async Task AddProject(ProjectDTO project)
+	{
+		if (userInfo != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			// Await the project creation and get the created project
+			var createdProject = await ProjectService.AddProjectAsync(project, companyId);
+
+			// Check that the created project's ID is set
+			if (createdProject.Id > 0)
+			{
+				Console.WriteLine($"Project created with ID: {createdProject.Id}");
+
+				if (userInfo.Roles != null && userInfo.Roles.Contains("ProjectManager"))
+				{
+					string adminId = userInfo.UserId;
+
+					// Now call AssignProjectManagerAsync since the created project ID is set
+					await ProjectService.AssignProjectManagerAsync(createdProject.Id, adminId, adminId);
+
+					// Fetch the project members after assigning the project manager
+					projectMembers = await ProjectService.GetProjectMembersAsync(createdProject.Id, companyId);
+
+					selectedMemberId = "";
+				}
+
+				// Update the list of projects
+				projects = await ProjectService.GetAllProjectsAsync(companyId);
+				projects = projects.Where(p => p.Members != null && p.Members.Any(m => m.Id == userInfo.UserId));
+
+				archivedProjects = await ProjectService.GetArchivedProjects(companyId);
+				archivedProjects = archivedProjects.Where(p => p.Members != null && p.Members.Any(m => m.Id == userInfo.UserId));
+			}
+			else
+			{
+				Console.WriteLine("Project creation failed. Project ID is not set.");
+			}
+		}
+
+		StateHasChanged();
+	}
+
+
+
+	private async Task UpdateProject(ProjectDTO updatedProject)
+	{
+		SelectedProject!.Name = updatedProject.Name;
+		SelectedProject.Description = updatedProject.Description;
+		SelectedProject.Priority = updatedProject.Priority;
+		SelectedProject.StartDate = updatedProject.StartDate;
+		SelectedProject.EndDate = updatedProject.EndDate;
+		SelectedProject.IsArchived = updatedProject.IsArchived;
+
+		await ProjectService.UpdateProjectAsync(SelectedProject, SelectedProject.CompanyId);
+
+		await JS.InvokeVoidAsync("openChangesSavedModal");
+
+		StateHasChanged();
+	}
+
+	private async Task ArchiveProject(int projectId)
+	{
+		if (userInfo != null && SelectedProject != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			await ProjectService.ArchiveProjectAsync(projectId, companyId);
+
+			projects = await ProjectService.GetAllProjectsAsync(companyId);
+
+			projects = projects.Where(p => p.Members != null && p.Members.Any(m => m.Id == userInfo.UserId));
+
+			archivedProjects = await ProjectService.GetArchivedProjects(companyId);
+
+			archivedProjects = archivedProjects.Where(p => p.Members != null && p.Members.Any(m => m.Id == userInfo.UserId));
+
+			SelectedProject.IsArchived = true;
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task RestoreProject(int projectId)
+	{
+		if (userInfo != null && SelectedProject != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			await ProjectService.RestoreProjectAsync(projectId, companyId);
+
+			projects = await ProjectService.GetAllProjectsAsync(companyId);
+
+			projects = projects.Where(p => p.Members != null && p.Members.Any(m => m.Id == userInfo.UserId));
+
+			archivedProjects = await ProjectService.GetArchivedProjects(companyId);
+
+			archivedProjects = archivedProjects.Where(p => p.Members != null && p.Members.Any(m => m.Id == userInfo.UserId));
+
+			SelectedProject.IsArchived = false;
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task AddTicketToProject(TicketDTO ticket)
+	{
+		if (userInfo != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			await TicketService.AddTicketAsync(ticket, companyId);
+
+			if (SelectedProject != null)
+			{
+				SelectedProject = await ProjectService.GetProjectByCompanyId(SelectedProject.Id, companyId);
+			}
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task UpdateTicket(TicketDTO ticket)
+	{
+		if (userInfo != null && SelectedProject != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			string userId = userInfo.UserId;
+
+			await TicketService.UpdateTicketAsync(ticket, companyId, userId);
+
+			SelectedTicket = await TicketService.GetTicketByIdAsync(ticket.Id, companyId);
+		}
+
+		await JS.InvokeVoidAsync("openChangesSavedModal");
+
+		StateHasChanged();
+	}
+
+	private async Task ArchiveTicket(int ticketId)
+	{
+		if (userInfo != null && SelectedProject != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			await TicketService.ArchiveTicketAsync(ticketId, companyId);
+
+			SelectedProject = await ProjectService.GetProjectByCompanyId(SelectedProject.Id, companyId);
+
+			if (SelectedTicket != null)
+			{
+				SelectedTicket = await TicketService.GetTicketByIdAsync(SelectedTicket.Id, companyId);
+			}
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task RestoreTicket(int ticketId)
+	{
+		if (userInfo != null && SelectedProject != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			await TicketService.RestoreTicketAsync(ticketId, companyId);
+
+			SelectedProject = await ProjectService.GetProjectByCompanyId(SelectedProject.Id, companyId);
+
+			if (SelectedTicket != null)
+			{
+				SelectedTicket = await TicketService.GetTicketByIdAsync(SelectedTicket.Id, companyId);
+			}
+		}
+
+		StateHasChanged();
+	}
+}
+

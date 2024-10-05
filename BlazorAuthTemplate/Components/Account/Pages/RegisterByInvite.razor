@@ -1,0 +1,306 @@
+﻿@page "/Account/Register/Invite"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
+@using BlazorAuthTemplate.Data
+@using BlazorAuthTemplate.Helpers
+@using BlazorAuthTemplate.Models
+@using BlazorAuthTemplate.Services.Interfaces
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity.UI.Services
+@using Microsoft.AspNetCore.WebUtilities
+@using static BlazorAuthTemplate.Models.Enums
+
+@* your usings here... *@
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Register> Logger
+@inject IEmailSender EmailSender
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+@inject ApplicationDbContext context
+
+@inject ICompanyService CompanyService
+@inject IInviteRepository InviteRepository
+@inject IProjectRepository ProjectRepository
+
+<PageTitle>Register</PageTitle>
+
+@if (inviteError)
+{
+	<div class="h-100 d-flex flex-column justify-content-center align-items-center">
+		<h1 class="display-4">Oops!</h1>
+		<p>
+			We could not find an invite for you to register an account. Please contact the company's administrator
+			to register for their team. If you'd like to create your own company on Blazor Bug Tracker,
+			<a href="Account/Register">click here to register a new company</a>.
+		</p>
+	</div>
+}
+else
+{
+
+	<h1>Register</h1>
+	<div class="row g-4">
+		<div class="col-xl-4">
+			@if (invite is not null)
+			{
+				<div class="card">
+					<div class="card-body">
+						<h3 class="card-title">Register an account with @invite.Company?.Name</h3>
+						<p class="card-text">
+							Welcome, @invite.InviteeFirstName @invite.InviteeLastName!
+						</p>
+						<p class="card-text">
+							You've been invited by <span class="fw-bold">@invite.Invitor?.FullName</span>
+							to join their team on Blazor Bug Tracker as a member of
+							<span class="fw-bold">@invite.Company?.Name</span> on the project
+							<span class="fw-bold">@invite.Project?.Name</span>.
+							Please fill out the form to register an account.
+						</p>
+						@if (!string.IsNullOrEmpty(invite.Message))
+						{
+							<div class="mx-3 border rounded-3 p-3">
+								<figure>
+									<blockquote class="blockquote">
+										@invite.Message
+									</blockquote>
+									<figcaption class="blockquote-footer">
+										<cite title="Source Title">@invite.Invitor?.FullName</cite>
+									</figcaption>
+								</figure>
+							</div>
+						}
+					</div>
+				</div>
+			}
+		</div>
+		<div class="col-xl-8">
+			@if (Input is not null)
+			{
+				<StatusMessage Message="@Message" />
+				<EditForm id="registerForm" Model="Input" method="post" OnValidSubmit="RegisterUser" FormName="register" enctype="multipart/form-data">
+					<DataAnnotationsValidator />
+
+					<h2>Create a new account.</h2>
+					<hr />
+					<ValidationSummary class="text-danger" />
+					<div class="form-floating mb-3">
+						<InputText id="email" @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" readonly />
+						<label for="email">Email</label>
+						<ValidationMessage For="() => Input.Email" class="text-danger" />
+					</div>
+					<div class="form-floating mb-3">
+						<InputText id="firstName" @bind-Value="Input.FirstName" class="form-control" aria-required="true" placeholder="First Name" />
+						<label for="firstName">First Name</label>
+						<ValidationMessage For="() => Input.FirstName" class="text-danger" />
+					</div>
+					<div class="form-floating mb-3">
+						<InputText id="lastName" @bind-Value="Input.LastName" class="form-control" aria-required="true" placeholder="Last Name" />
+						<label for="lastName">Last Name</label>
+						<ValidationMessage For="() => Input.LastName" class="text-danger" />
+					</div>
+					<div class="form-floating mb-3">
+						<InputText id="password" type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<label for="password">Password</label>
+						<ValidationMessage For="() => Input.Password" class="text-danger" />
+					</div>
+					<div class="form-floating mb-3">
+						<InputText id="confirm-password" type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<label for="confirm-password">Confirm Password</label>
+						<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+					</div>
+					<div class="mb-3 row">
+						<div class="col-lg-4">
+							<img src="@UploadHelper.DefaultProfilePicture" class="img-fluid" id="profilePicPreview" />
+						</div>
+						<div class="col-lg-8">
+							<label for="Input.ProfilePicture" class="form-label">Profile Picture</label>
+							<input type="file" class="form-control" name="Input.ProfilePicture" accept=".jpg, .jpeg, .png, .svg, .gif"
+								   onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
+						</div>
+					</div>
+					<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+				</EditForm>
+			}
+		</div>
+	</div>
+}
+
+@code {
+	[SupplyParameterFromQuery(Name = "token")]
+	public string? ProtectedToken { get; set; }
+
+	[SupplyParameterFromQuery(Name = "email")]
+	public string? ProtectedEmail { get; set; }
+
+	[SupplyParameterFromQuery(Name = "company")]
+	public string? ProtectedCompanyId { get; set; }
+
+	[SupplyParameterFromForm]
+	public InputModel Input { get; set; } = default!;
+
+	private Invite? invite;
+	private bool inviteError;
+
+	public class InputModel
+	{
+		[Required]
+		public string? FirstName { get; set; }
+
+		[Required]
+		public string? LastName { get; set; }
+
+		[Required]
+		[EmailAddress]
+		[Display(Name = "Email")]
+		public string Email { get; set; } = null!;
+
+		[Required]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+		[DataType(DataType.Password)]
+		[Display(Name = "Password")]
+		public string Password { get; set; } = null!;
+
+		[DataType(DataType.Password)]
+		[Display(Name = "Confirm password")]
+		[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+		public string ConfirmPassword { get; set; } = null!;
+
+		public IFormFile? ProfilePicture { get; set; }
+	}
+
+	IEnumerable<IdentityError>? identityErrors;
+	string? Message => identityErrors is null ? null : "Error: " + string.Join(", ", identityErrors.Select(error => error.Description));
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (string.IsNullOrEmpty(ProtectedToken) || string.IsNullOrEmpty(ProtectedEmail) || string.IsNullOrEmpty(ProtectedCompanyId))
+		{
+			inviteError = true;
+			return;
+		}
+
+		invite = await InviteRepository.GetValidInviteAsync(ProtectedToken, ProtectedEmail, ProtectedCompanyId);
+
+		if (invite is null)
+		{
+			inviteError = true;
+			return;
+		}
+
+		Input ??= new()
+			{
+				Email = invite.InviteeEmail!,
+				FirstName = invite.InviteeFirstName,
+				LastName = invite.InviteeLastName
+			};
+	}
+
+	public async Task RegisterUser(EditContext editContext)
+	{
+		var user = CreateUser();
+
+		if (invite is null || invite.InviteeEmail != Input.Email)
+		{
+			throw new Exception("Invite not found!");
+		}
+
+		user.FirstName = Input.FirstName;
+		user.LastName = Input.LastName;
+		user.CompanyId = invite.CompanyId;
+
+		await UserStore.SetUserNameAsync(user, invite.InviteeEmail, CancellationToken.None);
+		var emailStore = GetEmailStore();
+		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+		var result = await UserManager.CreateAsync(user, Input.Password);
+
+		if (result.Succeeded)
+		{
+
+			user.CompanyId = invite.CompanyId;
+			await UserManager.UpdateAsync(user);
+
+			await UserManager.AddToRoleAsync(user, nameof(Roles.Submitter));
+			await ProjectRepository.AddMemberToProjectAsync(invite.ProjectId, user.Id, invite.InvitorId!);
+			await InviteRepository.AcceptInviteAsync(invite.Id, user.Id);
+
+			Logger.LogInformation("User created a new account with password.");
+
+			if (Input.ProfilePicture is not null)
+			{
+				try
+				{
+					FileUpload profilePic = await UploadHelper.GetImageUploadAsync(Input.ProfilePicture);
+					user.Image = profilePic;
+
+					context.Uploads.Add(profilePic);
+					context.Users.Update(user);
+
+					await context.SaveChangesAsync();
+				}
+				catch (Exception ex)
+				{
+					// Register the user anyway and let them reupload after registering
+					// We can't send them back to the form, since the user is already created by now
+					Console.WriteLine(ex);
+				}
+			}
+
+			var userId = await UserManager.GetUserIdAsync(user);
+			var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+			code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+			var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+				NavigationManager.ToAbsoluteUri("/Account/ConfirmEmail").AbsoluteUri,
+				new Dictionary<string, object?> { { "userId", userId }, { "code", code } });
+
+			await EmailSender.SendEmailAsync(Input.Email, "Confirm your email",
+				$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+			if (UserManager.Options.SignIn.RequireConfirmedAccount)
+			{
+				RedirectManager.RedirectTo(
+					"/Account/RegisterConfirmation",
+					new() { ["Email"] = Input.Email });
+			}
+			else
+			{
+				await SignInManager.SignInAsync(user, isPersistent: false);
+				RedirectManager.RedirectTo("/");
+			}
+		}
+		else
+		{
+			identityErrors = result.Errors;
+		}
+	}
+
+	private ApplicationUser CreateUser()
+	{
+
+		try
+		{
+			return Activator.CreateInstance<ApplicationUser>();
+		}
+		catch
+		{
+			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+				$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+		}
+	}
+
+	private IUserEmailStore<ApplicationUser> GetEmailStore()
+	{
+		if (!UserManager.SupportsUserEmail)
+		{
+			throw new NotSupportedException("The default UI requires a user store with email support.");
+		}
+		return (IUserEmailStore<ApplicationUser>)UserStore;
+	}
+
+}

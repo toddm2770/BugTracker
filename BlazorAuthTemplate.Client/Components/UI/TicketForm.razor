@@ -1,0 +1,145 @@
+﻿@inject ITicketService TicketService
+
+
+@if(ticketForm != null)
+{
+	<EditForm Model="ticketForm" OnValidSubmit="HandleSubmit">
+		<DataAnnotationsValidator />
+
+		<div class="mb-2">
+			<label class="form-label">Title</label>
+			<InputText class="form-control" @bind-Value="ticketForm.Title" />
+			<ValidationMessage For="() => ticketForm.Title" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Description</label>
+			<InputTextArea class="form-control" @bind-Value="ticketForm.Description" />
+			<ValidationMessage For="() => ticketForm.Description" />
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Priority</label>
+			<InputSelect class="form-select" @bind-Value="ticketForm.Priority">
+				@foreach(var priority in Enum.GetValues(typeof(TicketPriority)).Cast<TicketPriority>())
+				{
+					<option value="@priority">@priority</option>
+				}
+			</InputSelect>
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Type</label>
+			<InputSelect class="form-select" @bind-Value="ticketForm.Type">
+				@foreach (var type in Enum.GetValues(typeof(TicketType)).Cast<TicketType>())
+				{
+					<option value="@type">@type</option>
+				}
+			</InputSelect>
+		</div>
+		<div class="mb-2">
+			<label class="form-label">Type</label>
+			<InputSelect class="form-select" @bind-Value="ticketForm.Status">
+				@foreach (var status in Enum.GetValues(typeof(TicketStatus)).Cast<TicketStatus>())
+				{
+					<option value="@status">@status</option>
+				}
+			</InputSelect>
+		</div>
+
+		<button class="btn btn-success" type="submit">
+			Save
+		</button>
+
+		<button @onclick="() => CancelEdit()" class="btn btn-warning mt-1">
+			Reset
+		</button>
+	</EditForm>
+}
+
+
+@code {
+
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	[Parameter, EditorRequired]
+	public TicketDTO? Ticket { get; set; }
+
+	[Parameter, EditorRequired]
+	public EventCallback<TicketDTO> OnSubmit { get; set; }
+
+	[Parameter, EditorRequired]
+	public ProjectDTO? Project { get; set; }
+
+	[Parameter]
+	public EventCallback OnCancel { get; set; }
+
+	private TicketDTO? ticketForm;
+
+	private TicketDTO? clonedTicket;
+
+	private TicketPriority priority { get; set; }
+
+	private UserInfo? userInfo;
+
+	protected override async Task OnInitializedAsync()
+	{
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+		if(userInfo != null)
+		{
+			int companyId = userInfo.CompanyId;
+
+			if(Ticket != null)
+			{
+				ticketForm = CloneTicket(Ticket);
+
+				clonedTicket = CloneTicket(Ticket);
+			}
+		}
+	}
+
+	protected override void OnParametersSet()
+	{
+		if (Ticket != null)
+		{
+			ticketForm = CloneTicket(Ticket);
+
+			clonedTicket = CloneTicket(Ticket);
+		}
+	}
+
+	public async Task HandleSubmit()
+	{
+		await OnSubmit.InvokeAsync(ticketForm);
+	}
+
+	public async Task CancelEdit()
+	{
+		ticketForm = clonedTicket;
+
+		await OnCancel.InvokeAsync();
+	}
+
+	private TicketDTO CloneTicket(TicketDTO ticket)
+	{
+		if(Ticket != null && Project != null && userInfo != null)
+		{
+			return new TicketDTO
+				{
+					Id = Ticket.Id,
+					Title = Ticket.Title,
+					ProjectId = Project.Id,
+					SubmitterUserId = userInfo.UserId,
+					Description = Ticket.Description,
+					Priority = Ticket.Priority,
+					Type = Ticket.Type,
+					Status = Ticket.Status,
+					TicketComments = Ticket.TicketComments
+				};
+		}
+		else
+		{
+			return new TicketDTO();
+		}
+	}
+}
+

@@ -1,0 +1,117 @@
+﻿@using BlazorAuthTemplate.Client.Helpers
+@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services.Interfaces
+
+@inject ITicketService TicketService
+@inject NavigationManager Nav
+
+<div id="comments" class="mt-3">
+	<div class="row">
+		<div class="col-12">
+			<h5 class="text-nowrap me-auto">
+				@(Comments!.Count() == 1 ? "1 comment" : $"{Comments!.Count()} comments")
+			</h5>
+		</div>
+		<div>
+			<button class="btn btn-link px-0" data-bs-toggle="collapse" data-bs-target="#newCommentForm">
+				Leave a comment
+			</button>
+		</div>
+
+		<div class="collapse p-3" id="newCommentForm">
+			<TicketCommentForm Comment="newComment" OnSubmit="HandleAddComment" />
+		</div>
+			<div class="vstack gap-2">
+				@foreach (TicketCommentDTO comment in Comments!.OrderByDescending(c => c.Created))
+				{
+					<TicketCommentListItem OnEdit="HandleEditComment" OnDelete="HandleDeleteComment" Comment="comment" />
+				}
+			</div>
+	</div>
+</div>
+
+
+
+@code {
+
+	[Parameter, EditorRequired]
+	public int TicketId { get; set; }
+
+	[Parameter, EditorRequired]
+	public int CompanyId { get; set; }
+
+	[Parameter]
+	public IEnumerable<TicketCommentDTO>? Comments { get; set; } = new List<TicketCommentDTO>();
+
+	[CascadingParameter]
+	public Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	private UserInfo? userInfo;
+
+	private TicketCommentDTO newComment = new TicketCommentDTO();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		Comments = await TicketService.GetTicketCommentsAsync(TicketId, CompanyId);
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+		Comments = await TicketService.GetTicketCommentsAsync(TicketId, CompanyId);
+	}
+
+	private async Task HandleAddComment(TicketCommentDTO comment)
+	{
+		try
+		{
+			comment.TicketId = TicketId;
+			comment.UserId = userInfo!.UserId;
+
+			await TicketService.AddCommentAsync(comment, CompanyId);
+
+			Comments = await TicketService.GetTicketCommentsAsync(TicketId, CompanyId);
+			newComment = new TicketCommentDTO();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
+
+	private async Task HandleEditComment(TicketCommentDTO comment)
+	{
+		try
+		{
+			if (comment.UserId == userInfo!.UserId)
+			{
+				await TicketService.UpdateCommentAsync(comment, CompanyId, userInfo!.UserId);
+				Comments = await TicketService.GetTicketCommentsAsync(TicketId, CompanyId);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
+
+	private async Task HandleDeleteComment(TicketCommentDTO comment)
+	{
+		try
+		{
+			if (comment.UserId == userInfo!.UserId || userInfo.Roles.Any(r => r == "Author" || r == "Moderator"))
+			{
+				await TicketService.DeleteCommentAsync(comment.Id, CompanyId);
+				Comments = await TicketService.GetTicketCommentsAsync(TicketId, CompanyId);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			throw;
+		}
+	}
+}

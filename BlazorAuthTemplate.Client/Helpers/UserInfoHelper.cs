@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using BlazorAuthTemplate.Client.Models;
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
 namespace BlazorAuthTemplate.Client.Helpers
@@ -13,7 +14,12 @@ namespace BlazorAuthTemplate.Client.Helpers
             string? lastName = authState.User.FindFirst(nameof(UserInfo.LastName))?.Value;
             string? profilePictureUrl = authState.User.FindFirst(nameof(UserInfo.ProfilePictureUrl))?.Value;
             string[]? roles = authState.User.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray();
-			int companyId = int.Parse(authState.User.FindFirst("CompanyId")!.Value);
+            int companyId = 0;
+
+			if (authState.User.FindFirst("CompanyId") is { }  companyIdClaim)
+			{
+                int.TryParse(companyIdClaim.Value, out companyId);
+			}
 
 			if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(firstName)
                 || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(profilePictureUrl))

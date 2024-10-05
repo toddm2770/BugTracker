@@ -1,7 +1,96 @@
 ﻿@page "/"
+@using BlazorAuthTemplate.Client.Helpers
+@using BlazorAuthTemplate.Client.Models
+@using BlazorAuthTemplate.Client.Services
+@using BlazorAuthTemplate.Client.Services.Interfaces
+@using BlazorAuthTemplate.Models
 
-<PageTitle>Home</PageTitle>
+@inject ICompanyService CompanyService
 
-<h1>Hello, world!</h1>
+@if (userInfo == null)
+{
+	<div class="d-flex h-100 flex-column justify-content-center align-items-center bg-1100">
+		<div class="container-fluid">
+			<div class="container">
+				<div class="row">
+					<div class="col-12 col-md-6 d-flex flex-column align-items-center justify-content-center">
+						<h1 class="text-white">BugTracker</h1>
+						<div class="subTitle text-white text-center">
+							BugBear is bug tracking app developed using ASP.NET, C#, Blazor, and SQL that facilitates the management of
+							software bugs, users, and project tracking. This application is designed to streamline the bug tracking
+							process, enhance team collaboration, and improve overall software quality.
+						</div>
+						<div class="mt-2 fw-bold">Built with pride using cutting edge tech:</div>
+						<div class="stackIcons">
+							<i class="devicon-csharp-plain colored"></i>
+							<i class="devicon-blazor-original colored"></i>
+							<i class="devicon-dotnetcore-plain colored"></i>
+							<i class="devicon-postgresql-plain colored"></i>
+							<i class="devicon-bootstrap-plain colored"></i>
+						</div>
+						<div class="text-center text-md-start">
+							<a href="/Account/Login" class="btn btn-large btn-primary rounded-pill">Get Started</a>
+						</div>
+					</div>
+					<div class="col-12 col-md-6 order-first order-md-last">
+						<img src="image/FrontPageImage.svg"
+							 class="img-fluid"
+							 style="border-radius: 10px;" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
 
-Welcome to your new app.
+@if (userInfo != null && company != null)
+{
+	<div class="d-flex w-100 h-100 flex-column justify-content-center align-items-center bg-1100">
+		<div class="container-fluid">
+			<div class="container">
+				<div class="row align-items-center h-100">
+					<div class="col-12 col-md-6 d-flex flex-column align-items-center justify-content-center">
+						<h2 class="text-white">
+							Welcome, @if (userInfo.Roles != null)
+							{
+								<span>@userInfo.Roles.FirstOrDefault(), </span>
+							} @userInfo.FullName
+						</h2>
+						<h2 class="text-white">@company.Name</h2>
+						<div class="text-center">
+							<h5 class="text-white">@company.Description</h5>
+						</div>
+					</div>
+					<div class="col-12 col-md-6 order-first order-md-last d-flex justify-content-center align-items-center">
+						<img src="@(string.IsNullOrEmpty(company.CompanyImageUrl) ? ImageHelper.DefaultCompanyImage : company.CompanyImageUrl)"
+							 class="img-fluid"
+							 style="border-radius: 10px;" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+	private UserInfo? userInfo;
+
+	private CompanyDTO? company;
+
+	protected override async Task OnInitializedAsync()
+	{
+		userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+		if (userInfo != null)
+		{
+			company = await CompanyService.GetCompanyByIdAsync(userInfo.CompanyId);
+		}
+	}
+}
+

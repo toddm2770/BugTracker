@@ -22,6 +22,21 @@ namespace BlazorAuthTemplate.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ApplicationUserProject", b =>
+                {
+                    b.Property<string>("MembersId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProjectsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("MembersId", "ProjectsId");
+
+                    b.HasIndex("ProjectsId");
+
+                    b.ToTable("ApplicationUserProject");
+                });
+
             modelBuilder.Entity("BlazorAuthTemplate.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -78,8 +93,8 @@ namespace BlazorAuthTemplate.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Role")
+                        .HasColumnType("text");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
@@ -103,8 +118,6 @@ namespace BlazorAuthTemplate.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -144,13 +157,13 @@ namespace BlazorAuthTemplate.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
-                    b.Property<string>("Extension")
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Images");
+                    b.ToTable("Uploads");
                 });
 
             modelBuilder.Entity("BlazorAuthTemplate.Models.Invite", b =>
@@ -514,6 +527,21 @@ namespace BlazorAuthTemplate.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ApplicationUserProject", b =>
+                {
+                    b.HasOne("BlazorAuthTemplate.Data.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("MembersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BlazorAuthTemplate.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BlazorAuthTemplate.Data.ApplicationUser", b =>
                 {
                     b.HasOne("BlazorAuthTemplate.Models.Company", "Company")
@@ -525,10 +553,6 @@ namespace BlazorAuthTemplate.Migrations
                     b.HasOne("BlazorAuthTemplate.Models.FileUpload", "Image")
                         .WithMany()
                         .HasForeignKey("ImageId");
-
-                    b.HasOne("BlazorAuthTemplate.Models.Project", null)
-                        .WithMany("Members")
-                        .HasForeignKey("ProjectId");
 
                     b.Navigation("Company");
 
@@ -647,7 +671,7 @@ namespace BlazorAuthTemplate.Migrations
                         .IsRequired();
 
                     b.HasOne("BlazorAuthTemplate.Data.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Ticket");
@@ -706,6 +730,11 @@ namespace BlazorAuthTemplate.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BlazorAuthTemplate.Data.ApplicationUser", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
             modelBuilder.Entity("BlazorAuthTemplate.Models.Company", b =>
                 {
                     b.Navigation("Invites");
@@ -717,8 +746,6 @@ namespace BlazorAuthTemplate.Migrations
 
             modelBuilder.Entity("BlazorAuthTemplate.Models.Project", b =>
                 {
-                    b.Navigation("Members");
-
                     b.Navigation("Tickets");
                 });
 

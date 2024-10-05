@@ -45,9 +45,9 @@ namespace BlazorAuthTemplate.Models
 
         public virtual Company? Company { get; set; }
 
-        public virtual ICollection<ApplicationUser>? Members { get; set; } = [];
+        public virtual ICollection<ApplicationUser> Members { get; set; } = new List<ApplicationUser>();
 
-        public virtual ICollection<Ticket>? Tickets { get; set; } = [];
+        public virtual ICollection<Ticket> Tickets { get; set; } = [];
 
 
     }
@@ -72,6 +72,7 @@ namespace BlazorAuthTemplate.Models
                 EndDate = project.EndDate,
                 Priority = project.Priority,
                 IsArchived = project.IsArchived,
+                CompanyId = project.CompanyId,
                 Members = [.. project.Members?.Select(m => m.ToDTO())],
                 Tickets = [.. project.Tickets?.Select(t => t.ToDTO())]
 
@@ -79,5 +80,3 @@ namespace BlazorAuthTemplate.Models
         }
     }
 }
-
-//[.. company.Projects.Select(p => p.ToDTO())]

@@ -1,0 +1,38 @@
+﻿@using BlazorAuthTemplate.Client.Models
+
+@if (Comment != null)
+{
+	<div class="card border-0 bg-secondary pt-2 p-md-2 p-xl-3 p-xxl-4 mt-3 mt-md-0">
+		<div class="card-body">
+			<EditForm Model="Comment" class="row needs-validation g-4" OnValidSubmit="HandleSubmit">
+				<div class="col-12">
+					<InputTextArea @bind-Value="Comment.Content" class="form-control" rows="4" placeholder="Type comment here..."></InputTextArea>
+				</div>
+				<div>
+					<button class="btn btn-primary" type="submit">Submit</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+}
+
+@code {
+	[Parameter]
+	public TicketCommentDTO? Comment { get; set; }
+
+	[Parameter, EditorRequired]
+	public EventCallback<TicketCommentDTO> OnSubmit { get; set; }
+
+	[Parameter]
+	public EventCallback OnCancel { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		Comment = new();
+	}
+
+	private async Task HandleSubmit()
+	{
+		await OnSubmit.InvokeAsync(Comment);
+	}
+}
