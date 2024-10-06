@@ -93,20 +93,19 @@ namespace BlazorAuthTemplate.Components.Account
                 var lastName = principal.FindFirst(nameof(UserInfo.LastName))?.Value;
                 string[]? roles = principal.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray();
 				string? companyId = principal.FindFirst("CompanyId")?.Value;
-
-				if (userId != null && email != null && firstName != null && lastName != null && profilePictureUrl != null && companyId != null)
+                if (userId != null && email != null && firstName != null && lastName != null && profilePictureUrl != null && companyId != null)
                 {
-                    state.PersistAsJson(nameof(UserInfo), new UserInfo
-                    {
-                        UserId = userId,
-                        Email = email,
-                        FirstName = firstName,
-                        LastName = lastName,
-                        ProfilePictureUrl = profilePictureUrl,
-                        Roles = roles,
-                        CompanyId = int.Parse(companyId)
-                    });
-                }
+					state.PersistAsJson(nameof(UserInfo), new UserInfo
+					{
+						UserId = userId,
+						Email = email,
+						FirstName = firstName,
+						LastName = lastName,
+						ProfilePictureUrl = profilePictureUrl,
+						Roles = roles,
+						CompanyId = int.Parse(companyId)
+					});
+				}
             }
         }
 

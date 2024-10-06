@@ -223,9 +223,6 @@ else
 		if (result.Succeeded)
 		{
 
-			user.CompanyId = invite.CompanyId;
-			await UserManager.UpdateAsync(user);
-
 			await UserManager.AddToRoleAsync(user, nameof(Roles.Submitter));
 			await ProjectRepository.AddMemberToProjectAsync(invite.ProjectId, user.Id, invite.InvitorId!);
 			await InviteRepository.AcceptInviteAsync(invite.Id, user.Id);
