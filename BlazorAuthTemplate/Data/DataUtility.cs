@@ -154,7 +154,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = faker.Name.FirstName(),
 				LastName = faker.Name.LastName(),
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -212,7 +212,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
 				LastName = faker.Name.LastName(),
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -270,7 +270,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
 				LastName = faker.Name.LastName(),
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -328,7 +328,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
 				LastName = faker.Name.LastName(),
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -385,7 +385,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
 				LastName = faker.Name.LastName(),
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -442,7 +442,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
 				LastName = faker.Name.LastName(),
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -474,7 +474,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = "Demo",
 				LastName = "Admin",
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -506,7 +506,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = "Demo",
 				LastName = "ProjectManager",
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -536,7 +536,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = "Demo",
 				LastName = "Developer",
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -566,7 +566,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = "Demo",
 				LastName = "Submitter",
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -596,7 +596,7 @@ namespace BlazorAuthTemplate.Data
 				FirstName = "Demo",
 				LastName = "NewUser",
 				EmailConfirmed = true,
-				CompanyId = company2Id
+				CompanyId = company1Id
 			};
 			try
 			{
@@ -635,7 +635,7 @@ namespace BlazorAuthTemplate.Data
 			 },
 			 new Project()
 			 {
-				 CompanyId = company2Id,
+				 CompanyId = company1Id,
 				 Name = "Build personal Blogging Platform",
 				 Description= "A custom built web application using .NET with Blazor, a Postgres database, and deployed in a Railway container. The app is designed to create, update and maintain a live blog site.",
 				 Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 5),
@@ -655,7 +655,7 @@ namespace BlazorAuthTemplate.Data
 			 },
 			 new Project()
 			 {
-				 CompanyId = company2Id,
+				 CompanyId = company1Id,
 				 Name = "Build an Address Book Web Application",
 				 Description="A custom designed .NET application with Postgres database.  This is an application to serve as a rolodex of contacts for a given user and allows users to send emails to individual contacts or entire categories of contacts.",
 				 Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 5),

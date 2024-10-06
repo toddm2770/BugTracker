@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BlazorAuthTemplate.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241006053757_001-Initial-Migration")]
+    [Migration("20241006060030_001-Initial-Migration")]
     partial class _001InitialMigration
     {
         /// <inheritdoc />
