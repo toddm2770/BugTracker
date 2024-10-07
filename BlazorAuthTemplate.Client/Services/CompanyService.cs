@@ -19,8 +19,16 @@ namespace BlazorAuthTemplate.Client.Services
 
 		public async Task CreateAdmin(string userId, int companyId)
 		{
-			HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"/api/companies/admin/{userId}", companyId);
-			response.EnsureSuccessStatusCode();
+			try
+			{
+				HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"/api/companies/admin/{userId}", companyId);
+				response.EnsureSuccessStatusCode();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
 		}
 
 		public async Task<CompanyDTO> CreateCompanyAsync(CompanyDTO company)
